@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.meta.metadataserv.db.dao.DbIndexDao">
+    <insert id="insertIntoDbIndexTemp">
+        insert into metaData.t_metadata_db_index_temp
+        (index_id,
+        index_name,
+        table_name,
+        is_unique,
+        index_schema,
+        column_name,
+        index_type)
+        values
+        <foreach collection="saveList" item="item" index="index" separator=",">
+            (#{item.indexId},
+            #{item.indexName},
+            #{item.tableName},
+            #{item.isUnique},
+            #{item.indexSchema},
+            #{item.columnName},
+            #{item.indexType})
+        </foreach>
+    </insert>
+
+    <insert id="saveTempToDbIndex">
+        insert into metaData.t_metadata_db_index
+        (index_id, index_name, table_name, is_unique, index_schema, column_name, index_type, update_time)
+        select a.index_id, a.index_name, a.table_name, a.is_unique, a.index_schema, a.column_name, a.index_type, now()
+        from metaData.t_metadata_db_index_temp a left join metaData.t_metadata_db_index b on a.index_name = b.index_name
+        where b.index_name is null
+    </insert>
+
+    <select id="getMysqlAllIndex" resultType="com.meta.metadataserv.domain.model.DbIndex">
+        select index_name,
+        table_name,
+        if(non_unique = 0, 1, 0) is_unique,
+        index_schema,
+        column_name,
+        index_type
+        from information_schema.statistics
+        where table_schema = #{schema}
+        <if test=" null != tableName and '' != tableName">
+            and table_name = #{tableName}
+        </if>
+    </select>
+</mapper>

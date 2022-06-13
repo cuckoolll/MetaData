@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.meta.metadataserv.db.dao.DbTableDao">
+    <select id="getMysqlAllTables" resultType="com.meta.metadataserv.domain.model.DbTable">
+        select table_name,
+               table_type,
+               table_catalog,
+               table_schema,
+               table_comment remark
+          from information_schema.tables
+         where table_schema = #{schema}
+    </select>
+
+    <insert id="insertIntoDbTableTemp">
+        insert into metaData.t_metadata_db_table_temp
+        (table_name,
+        table_type,
+        table_catalog,
+        table_schema,
+        remark)
+        values
+        <foreach collection="saveList" item="item" index="index" separator=",">
+            (#{item.tableName},
+            #{item.tableType},
+            #{item.tableCatalog},
+            #{item.tableSchema},
+            #{item.remark})
+        </foreach>
+
+    </insert>
+
+    <insert id="saveTempToDbTable">
+        insert into metaData.t_metadata_db_table
+        (table_name, table_type, table_catalog, table_schema, remark, update_time)
+        select a.table_name, a.table_type, a.table_catalog, a.table_schema, a.remark, now()
+        from metaData.t_metadata_db_table_temp a left join metaData.t_metadata_db_table b on a.table_name = b.table_name
+        where b.table_name is null
+    </insert>
+
+    <select id="getDbTable" resultType="com.meta.metadataserv.domain.model.DbTable">
+        select * from metadata.t_metadata_db_table where 1 = 1
+        <if test=" queryCond.schema != null and queryCond.schema != '' ">
+            and table_schema = #{queryCond.schema}
+        </if>
+        <if test=" queryCond.tableName != null and queryCond.tableName != '' ">
+            and table_name like concat('%', #{queryCond.tableName}, '%')
+        </if>
+        order by table_name
+    </select>
+</mapper>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.meta.metadataserv.db.dao.DbColumnDao">
+    <select id="getMysqlAllColumns" resultType="com.meta.metadataserv.domain.model.DbColumn">
+        select replace(uuid(), '-', '') column_id,
+               table_name,
+               column_name,
+               data_type,
+               column_default,
+               if(lower(column_key) = 'pri', 1, 0) is_primary,
+               if(lower(is_nullable)  = 'yes', 1, 0) is_nullable,
+               character_maximum_length varchar_length,
+               numeric_precision number_length,
+               numeric_scale,
+               column_comment remark
+        from information_schema.columns
+        where table_schema = #{schema}
+    </select>
+
+    <insert id="insertIntoDbColumnTemp">
+        insert into metaData.t_metadata_db_column_temp
+        (column_id,
+        table_name,
+        column_name,
+        data_type,
+        column_default,
+        is_primary,
+        is_nullable,
+        varchar_length,
+        number_length,
+        number_scale,
+        remark)
+        values
+        <foreach collection="saveList" item="item" index="index" separator=",">
+            (#{item.columnId},
+            #{item.tableName},
+            #{item.columnName},
+            #{item.dataType},
+            #{item.columnDefault},
+            #{item.isPrimary},
+            #{item.isNullable},
+            #{item.varcharLength},
+            #{item.numberLength},
+            #{item.numberScale},
+            #{item.remark})
+        </foreach>
+    </insert>
+
+    <insert id="saveTempToDbColumn">
+        insert into metaData.t_metadata_db_column
+        (column_id, table_name, column_name, data_type, column_default, is_primary, is_nullable, varchar_length, number_length, number_scale, remark, update_time)
+        select a.column_id, a.table_name, a.column_name, a.data_type, a.column_default, a.is_primary, a.is_nullable, a.varchar_length, a.number_length, a.number_scale, a.remark, now()
+        from metaData.t_metadata_db_column_temp a left join metaData.t_metadata_db_column b on a.column_name = b.column_name
+        where b.column_name is null
+    </insert>
+</mapper>
