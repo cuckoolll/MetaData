@@ -35,4 +35,13 @@ public class DbColumnServiceImpl extends ServiceImpl<DbColumnDao, DbColumn> impl
         ddlService.dropTable(tempColumnTableName);
     }
 
+    /**
+     * 查询表字段
+     * @param tableName
+     * @return
+     */
+    public List<DbColumn> getDbColumn(String tableName) {
+        List<DbColumn> result = getBaseMapper().getDbColumn(tableName);
+        return result;
+    }
 }

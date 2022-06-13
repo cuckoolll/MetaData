@@ -53,4 +53,8 @@
         from metaData.t_metadata_db_column_temp a left join metaData.t_metadata_db_column b on a.column_name = b.column_name
         where b.column_name is null
     </insert>
+
+    <select id="getDbColumn" resultType="com.meta.metadataserv.domain.model.DbColumn">
+        select * from metadata.t_metadata_db_column where table_name = #{tableName} order by is_primary desc, column_name, create_time
+    </select>
 </mapper>

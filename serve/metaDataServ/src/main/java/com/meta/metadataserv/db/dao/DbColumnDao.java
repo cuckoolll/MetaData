@@ -27,4 +27,11 @@ public interface DbColumnDao extends BaseMapper<DbColumn> {
      * 将临时表数据插入至column表 .
      */
     void saveTempToDbColumn();
+
+    /**
+     * 查询表字段
+     * @param tableName
+     * @return
+     */
+    List<DbColumn> getDbColumn(@Param("tableName") String tableName);
 }

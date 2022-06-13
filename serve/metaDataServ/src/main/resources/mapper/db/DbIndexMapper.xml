@@ -43,4 +43,8 @@
             and table_name = #{tableName}
         </if>
     </select>
+
+    <select id="getDbIndex" resultType="com.meta.metadataserv.domain.model.DbIndex">
+        select * from t_metadata_db_index where table_name = #{tableName} order by index_name
+    </select>
 </mapper>

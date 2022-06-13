@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.meta.metadataserv.db.dao.DbIndexDao;
 import com.meta.metadataserv.db.service.IDbIndexService;
 import com.meta.metadataserv.db.service.IDdlService;
+import com.meta.metadataserv.domain.model.DbColumn;
 import com.meta.metadataserv.domain.model.DbConf;
 import com.meta.metadataserv.domain.model.DbIndex;
 import org.springframework.stereotype.Service;
@@ -31,5 +32,15 @@ public class DbIndexServiceImpl extends ServiceImpl<DbIndexDao, DbIndex> impleme
         getBaseMapper().insertIntoDbIndexTemp(indexList);
         getBaseMapper().saveTempToDbIndex();
         ddlService.dropTable(tempIndexTableName);
+    }
+
+    /**
+     * 查询索引 .
+     * @param tableName
+     * @return
+     */
+    public List<DbIndex> getDbIndex(String tableName) {
+        List<DbIndex> result = getBaseMapper().getDbIndex(tableName);
+        return result;
     }
 }

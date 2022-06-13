@@ -26,4 +26,11 @@ public interface DbIndexDao extends BaseMapper<DbIndex> {
      * @return
      */
     List<DbIndex> getMysqlAllIndex(@Param("schema") String schema, @Param("tableName") String tableName);
+
+    /**
+     * 查询索引 .
+     * @param tableName
+     * @return
+     */
+    List<DbIndex> getDbIndex(String tableName);
 }
