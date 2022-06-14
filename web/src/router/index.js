@@ -17,6 +17,21 @@ const routes = [
             }
         ]
     },
+    {
+        path: '/constTable',
+        icon: 'List',
+        meta: {
+            nav: '常量表',
+        },
+        component: home,
+        children: [
+            {
+                path: '',
+                hidden: true,
+                component: () => import('@/views/constTable.vue'),
+            }
+        ]
+    },
     // {
     //     path: '/setting',
     //     icon: 'Setting',

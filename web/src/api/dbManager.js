@@ -23,5 +23,12 @@ export default {
 	getDbTable(param) {
 		return post(this.data().base + "/getDbTable", param);
 	},
-	
+
+    getDbColumn(param) {
+        return post(this.data().base + "/getDbColumn", param);
+    },
+
+    getDbIndex(param) {
+        return post(this.data().base + "/getDbIndex", param);
+    },
 }
