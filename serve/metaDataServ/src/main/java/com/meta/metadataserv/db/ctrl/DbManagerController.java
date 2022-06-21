@@ -88,7 +88,7 @@ public class DbManagerController {
     @ApiOperation("查询表字段")
     @PostMapping("/getDbColumn")
     public RespResult getDbColumn(@RequestBody ColumnQueryCond queryCond) {
-        List<DbColumn> result = dbColumnService.getDbColumn(queryCond.getTableName());
+        List<DbColumn> result = dbColumnService.getDbColumn(queryCond.getTableName(), queryCond.getSchema());
         return RespResult.ok(result);
     }
 

@@ -3,6 +3,7 @@ package com.meta.metadataserv.db.dao;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.meta.metadataserv.domain.model.DbColumn;
 import com.meta.metadataserv.domain.model.DbTable;
+import com.meta.metadataserv.domain.query.ColumnQueryCond;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -15,7 +16,14 @@ public interface DbColumnDao extends BaseMapper<DbColumn> {
      * @param schema .
      * @return
      */
-    List<DbColumn> getMysqlAllColumns(String schema);
+    List<DbColumn> getMysqlAllColumns(@Param("schema") String schema);
+
+    /**
+     * 查询mysql数据库字段 .
+     * @param queryCond
+     * @return
+     */
+    List<DbColumn> getMysqlColumns(@Param("queryCond") ColumnQueryCond queryCond);
 
     /**
      * 向column临时表插入数据 .
@@ -33,5 +41,5 @@ public interface DbColumnDao extends BaseMapper<DbColumn> {
      * @param tableName
      * @return
      */
-    List<DbColumn> getDbColumn(@Param("tableName") String tableName);
+    List<DbColumn> getDbColumn(@Param("tableName") String tableName, @Param("schema") String schema);
 }

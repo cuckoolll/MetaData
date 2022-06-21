@@ -33,7 +33,8 @@
         insert into metaData.t_metadata_db_table
         (table_name, table_type, table_catalog, table_schema, remark, update_time)
         select a.table_name, a.table_type, a.table_catalog, a.table_schema, a.remark, now()
-        from metaData.t_metadata_db_table_temp a left join metaData.t_metadata_db_table b on a.table_name = b.table_name
+        from metaData.t_metadata_db_table_temp a
+            left join metaData.t_metadata_db_table b on a.table_name = b.table_name and a.table_schema = b.table_schema
         where b.table_name is null
     </insert>
 

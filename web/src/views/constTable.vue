@@ -1,12 +1,12 @@
 <template>
   <div>
-    <el-button type="primary" @click="createTable()">创建</el-button>
+    <el-button type="primary" @click="showConstTableCreateDlg = true">创建</el-button>
 
     <div style="padding-top:10px;">
       <el-table
           :data="tableData"
           height="75vh"
-		      @row-click="showTableDetail"
+          @row-click="showConstTableData"
           style="width: 100%; ">
         <el-table-column
             type="index"
@@ -49,109 +49,164 @@
             label="创建人"
             align="center">
         </el-table-column>
+<!--        <el-table-column-->
+<!--            label="操作"-->
+<!--            align="center">-->
+<!--          <template #default="scope">-->
+<!--            <el-button size="small" type="primary" @click="handleEdit(scope.$index, scope.row)">-->
+<!--              导入数据-->
+<!--            </el-button>-->
+<!--          </template>-->
+<!--        </el-table-column>-->
       </el-table>
-	  <el-pagination 
-			style="padding-top: 10px; float: right;"
-			:total="tableTotal"
-			:page-size="pageSize"
-			@size-change="handleSizeChange"
-			@current-change="handleCurrentChange"
-			:current-page="currentPage"
-			layout="total,sizes,prev,pager,next,jumper">
-		</el-pagination>
-    </div>
+      <el-pagination
+        style="padding-top: 10px; float: right;"
+        :total="tableTotal"
+        :page-size="pageSize"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="currentPage"
+        layout="total,sizes,prev,pager,next,jumper">
+      </el-pagination>
+      </div>
 
-	  <dbTableDetailDlg v-model="showTableDetailDlg" ref="dbTableDetailDlg" @on-close="showTableDetailDlg=false"></dbTableDetailDlg>
+      <constTableDataDlg v-model="showConstTableDataDlg" ref="constTableDataDlg" @on-close="showConstTableDataDlg=false"></constTableDataDlg>
+
+      <el-dialog v-model="showConstTableCreateDlg" title="创建常量表" width="500px">
+        <el-form :model="constTableForm">
+          <el-form-item label="数据库名称" :label-width="formLabelWidth" prop="dbSchema">
+            <el-select v-model="constTableForm.tableSchema" class="m-2 inputWidth" filterable placeholder="Select">
+              <el-option
+                  v-for="item in schemaOption"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="表名" :label-width="formLabelWidth" prop="tableName">
+            <el-input type="text" v-model="constTableForm.tableName" autocomplete="off" class="inputWidth"/>
+          </el-form-item>
+          <el-form-item label="备注" :label-width="formLabelWidth" prop="remark">
+            <el-input type="text" v-model="constTableForm.remark" autocomplete="off" class="inputWidth"/>
+          </el-form-item>
+<!--          <el-form-item label="sql文件" :label-width="formLabelWidth" prop="remark">-->
+<!--            <el-upload-->
+<!--                class="upload-demo"-->
+<!--                action="https://jsonplaceholder.typicode.com/posts/"-->
+<!--                :on-change="handleChange"-->
+<!--                :file-list="fileList"-->
+<!--                accept=".sql,.SQL"-->
+<!--            >-->
+<!--              <el-button type="primary">点击上传文件</el-button>-->
+<!--            </el-upload>-->
+<!--          </el-form-item>-->
+        </el-form>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="showConstTableCreateDlg = false">取消</el-button>
+            <el-button type="primary" @click="saveConstTable()">确定</el-button>
+          </span>
+        </template>
+      </el-dialog>
   </div>
 </template>
 
 <script>
-import dbTableDetailDlg from "@/views/dbTableDetailDlg";
-import dbManager from "@/api/dbManager";
+import constTableDataDlg from "@/views/constTableDataDlg";
+import dbConstTable from "@/api/dbConstTable";
 
 export default {
   components:{
-	  dbTableDetailDlg
+    constTableDataDlg
   },
 
   data() {
     return {
-      tableColumnWidth:document.body.clientWidth / 8,
-      tableHeight:document.body.clientHeight * 0.8,
+      formLabelWidth : "140px",
 
       tableData:[],
-	  tableTotal: 0,
-	  currentPage: 1,
-	  pageSize: 20,
+      tableTotal: 0,
+      currentPage: 1,
+      pageSize: 20,
 
-      showSetDbConfDlg: false,
-	  showTableDetailDlg: false,
-	  
-	  dbConf:{},
+      showConstTableCreateDlg: false,
+      showConstTableDataDlg: false,
+
+      schemaOption : [
+        {
+          value: 'basedata',
+          label: 'basedata',
+        },
+      ],
+
+
+      constTableForm : {
+        tableSchema: '',
+        tableName: '',
+        remark: '',
+      },
+
+      fileList : [],
+      file:'',
     }
   },
 
   methods: {
-    showSetDbConf() {
-      this.$refs.dbConfDlg.showSetDbConf();
-      this.showSetDbConfDlg = true;
+    handleSizeChange: function (size) {
+      //一页显示多少条
+      this.pageSize = size;
     },
-	
-	handleSizeChange: function (size) {
-	  //一页显示多少条
-	  this.pageSize = size;
-	  this.getDbTable();
-	},
 
-	handleCurrentChange: function (currentPage) {
-	  //页码更改方法
-	  this.currentPage = currentPage;
-	  this.getDbTable();
-	},
-	
-	showTableDetail (row, event, column) {
-		let table = {};
-		table.tableName = row.tableName;
-		table.schema = row.tableSchema;
-		table.remark = row.remark;
-		this.$refs.dbTableDetailDlg.showTableDetail(table);
-		this.showTableDetailDlg = true;
-	},
-	
-	async syncMetaData() {
-		const { code, data, msg } = await dbManager.syncMetaData(this.dbConf);
-		if ("200" == code) {
-			this.getDbTable();
-			this.$message.success(msg);
-		} else {
-			this.$message.error(msg);
-		}
-	},
-	
-	async getDbConf() {
-		const { code, data, msg } = await dbConf.getDbConfByPost({"currentPage":1, "size":1});
-		if ('200' == code && data != null && data.records.length > 0) {
-			this.dbConf = data.records[0];
-		}
-	},
-	
-	async getDbTable() {
-		const { code, data, msg } = await dbManager.getDbTable({"currentPage":this.currentPage, "size":this.pageSize});
-		if ('200' == code && data != null && data.records.length > 0) {
-			this.tableData = data.records;
-			this.tableTotal = data.total;
-		}
-	}
+    handleCurrentChange: function (currentPage) {
+      //页码更改方法
+      this.currentPage = currentPage;
+    },
+
+    handleChange(file, fileList) {
+      this.file = file;
+      this.fileList = fileList.slice(-3);
+    },
+
+    showConstTableData (row, event, column) {
+      let table = {};
+      table.tableName = row.tableName;
+      table.schema = row.tableSchema;
+      table.remark = row.remark;
+      this.$refs.constTableDataDlg.showConstTableData(table);
+      this.showConstTableDataDlg = true;
+    },
+
+    async getConstTable() {
+      const { code, data, msg } = await dbConstTable.getConstTable({'currentPage': this.currentPage, 'size': this.pageSize});
+      if ('200' == code) {
+        this.tableData = data.records;
+        this.tableTotal = data.total;
+      }
+    },
+
+    async saveConstTable() {
+      const { code, data, msg } = await dbConstTable.createConstTable(this.constTableForm);
+      if ('200' == code) {
+        this.$message.success("创建成功");
+        await this.getConstTable();
+        this.showConstTableCreateDlg = false;
+      } else {
+        this.$message.error(msg);
+      }
+    },
+
 	
   },
-  
+
   created() {
-  	this.getDbConf();
-	this.getDbTable();
+    this.getConstTable();
   }
 }
 </script>
 
 <style scoped>
-
+  .inputWidth{
+    width: 200px;
+  }
 </style>

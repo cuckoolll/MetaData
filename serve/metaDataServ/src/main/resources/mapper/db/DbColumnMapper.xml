@@ -4,6 +4,7 @@
     <select id="getMysqlAllColumns" resultType="com.meta.metadataserv.domain.model.DbColumn">
         select replace(uuid(), '-', '') column_id,
                table_name,
+               table_schema,
                column_name,
                data_type,
                column_default,
@@ -12,7 +13,9 @@
                character_maximum_length varchar_length,
                numeric_precision number_length,
                numeric_scale,
-               column_comment remark
+               column_comment remark,
+               extra,
+               ordinal_position sort
         from information_schema.columns
         where table_schema = #{schema}
     </select>
@@ -21,6 +24,7 @@
         insert into metaData.t_metadata_db_column_temp
         (column_id,
         table_name,
+        table_schema,
         column_name,
         data_type,
         column_default,
@@ -29,11 +33,14 @@
         varchar_length,
         number_length,
         number_scale,
-        remark)
+        remark,
+        extra,
+        sort)
         values
         <foreach collection="saveList" item="item" index="index" separator=",">
             (#{item.columnId},
             #{item.tableName},
+            #{item.tableSchema},
             #{item.columnName},
             #{item.dataType},
             #{item.columnDefault},
@@ -42,19 +49,51 @@
             #{item.varcharLength},
             #{item.numberLength},
             #{item.numberScale},
-            #{item.remark})
+            #{item.remark},
+            #{item.extra},
+            #{item.sort})
         </foreach>
     </insert>
 
     <insert id="saveTempToDbColumn">
         insert into metaData.t_metadata_db_column
-        (column_id, table_name, column_name, data_type, column_default, is_primary, is_nullable, varchar_length, number_length, number_scale, remark, update_time)
-        select a.column_id, a.table_name, a.column_name, a.data_type, a.column_default, a.is_primary, a.is_nullable, a.varchar_length, a.number_length, a.number_scale, a.remark, now()
-        from metaData.t_metadata_db_column_temp a left join metaData.t_metadata_db_column b on a.column_name = b.column_name
+        (column_id, table_name, table_schema, column_name, data_type, column_default, is_primary, is_nullable, varchar_length, number_length, number_scale, remark, extra, sort, update_time)
+        select a.column_id, a.table_name, a.table_schema, a.column_name, a.data_type, a.column_default, a.is_primary, a.is_nullable, a.varchar_length, a.number_length, a.number_scale, a.remark, a.extra, a.sort, now()
+        from metaData.t_metadata_db_column_temp a left join metaData.t_metadata_db_column b on a.column_name = b.column_name and a.table_schema = b.table_schema
         where b.column_name is null
     </insert>
 
     <select id="getDbColumn" resultType="com.meta.metadataserv.domain.model.DbColumn">
-        select * from metadata.t_metadata_db_column where table_name = #{tableName} order by is_primary desc, column_name, create_time
+        select * from metadata.t_metadata_db_column
+        where table_name = #{tableName}
+        <if test=" null != schema and '' != schema">
+            and table_schema like concat('%', #{schema}, '%')
+        </if>
+        order by is_primary desc, sort
+    </select>
+
+    <select id="getMysqlColumns" resultType="com.meta.metadataserv.domain.model.DbColumn">
+        select replace(uuid(), '-', '') column_id,
+               table_name,
+               table_schema,
+               column_name,
+               data_type,
+               column_default,
+               if(lower(column_key) = 'pri', 1, 0) is_primary,
+               if(lower(is_nullable)  = 'yes', 1, 0) is_nullable,
+               character_maximum_length varchar_length,
+               numeric_precision number_length,
+               numeric_scale,
+               column_comment remark,
+               extra,
+               sort
+        from information_schema.columns
+        where 1 = 1
+         <if test=" null != queryCond.schema and '' != queryCond.schema ">
+             and table_schema = #{queryCond.schema}
+         </if>
+        <if test=" null != queryCond.tableName and '' != queryCond.tableName ">
+            and table_name = #{queryCond.tableName}
+        </if>
     </select>
 </mapper>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.meta.metadataserv.db.dao.ConstTableDao">
+    <insert id="create">
+        insert into t_metadata_const_table(table_name,table_schema,remark,update_time,create_time)
+        values (#{constTable.tableName}, #{constTable.tableSchema}, #{constTable.remark}, now(), now())
+    </insert>
+
+    <select id="getConstTable" resultType="com.meta.metadataserv.domain.model.ConstTable">
+        select * from t_metadata_const_table where 1 = 1
+        <if test=" null != queryCond.schema and '' != queryCond.schema">
+            and table_schema like concat('%', #{queryCond.schema}, '%')
+        </if>
+        <if test=" null != queryCond.tableName and '' != queryCond.tableName">
+            and table_name like concat('%', #{queryCond.tableName}, '%')
+        </if>
+    </select>
+
+    <select id="getGridColumn" resultType="com.meta.metadataserv.domain.common.GridColumn">
+        select column_name prop,
+               remark label
+        from t_metadata_db_column
+        where table_name = #{queryCond.tableName}
+          and table_schema = #{queryCond.schema}
+        order by is_primary desc, sort
+    </select>
+
+    <select id="getData" resultType="java.util.Map">
+        select ${columns} from ${cond.schema}.${cond.tableName} where 1=1
+        <if test=" null != cond.columnName and '' != cond.columnName and null != cond.columnValue and '' != cond.columnValue">
+            and #{cond.columnName} like concat('%', #{cond.columnValue}, '%')
+        </if>
+    </select>
+</mapper>

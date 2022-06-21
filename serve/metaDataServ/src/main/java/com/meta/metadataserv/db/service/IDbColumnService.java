@@ -3,6 +3,7 @@ package com.meta.metadataserv.db.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.meta.metadataserv.domain.model.DbColumn;
 import com.meta.metadataserv.domain.model.DbConf;
+import com.meta.metadataserv.domain.query.ColumnQueryCond;
 import com.meta.metadataserv.domain.result.RespResult;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,5 +22,18 @@ public interface IDbColumnService extends IService<DbColumn>  {
      * @param tableName
      * @return
      */
-    List<DbColumn> getDbColumn(String tableName);
+    List<DbColumn> getDbColumn(String tableName, String schema);
+
+    /**
+     * 从mysql字典表查询字段 .
+     * @param queryCond
+     * @return
+     */
+    List<DbColumn> getDbColumnFromOrigin(ColumnQueryCond queryCond);
+
+    /**
+     * 保存字段 .
+     * @param columnList
+     */
+    void saveDbColumn(List<DbColumn> columnList);
 }

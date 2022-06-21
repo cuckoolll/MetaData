@@ -6,6 +6,7 @@ import com.meta.metadataserv.db.service.IDbColumnService;
 import com.meta.metadataserv.db.service.IDdlService;
 import com.meta.metadataserv.domain.model.DbColumn;
 import com.meta.metadataserv.domain.model.DbConf;
+import com.meta.metadataserv.domain.query.ColumnQueryCond;
 import com.meta.metadataserv.utils.UuidUtil;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +28,23 @@ public class DbColumnServiceImpl extends ServiceImpl<DbColumnDao, DbColumn> impl
      */
     public void syncColumn(DbConf dbConf) {
         List<DbColumn> columnList = getBaseMapper().getMysqlAllColumns(dbConf.getDbSchema());
+        saveDbColumn(columnList);
+    }
 
+    /**
+     * 从mysql字典表查询字段 .
+     * @param queryCond
+     * @return
+     */
+    public List<DbColumn> getDbColumnFromOrigin(ColumnQueryCond queryCond) {
+        return getBaseMapper().getMysqlColumns(queryCond);
+    }
+
+    /**
+     * 保存字段 .
+     * @param columnList
+     */
+    public void saveDbColumn(List<DbColumn> columnList) {
         //增量增加，仅做Insert操作，已存在的字段不做更新处理
         String tempColumnTableName = ddlService.createTempTableForce(T_METADATA_DB_COLUMN);
         getBaseMapper().insertIntoDbColumnTemp(columnList);
@@ -40,8 +57,8 @@ public class DbColumnServiceImpl extends ServiceImpl<DbColumnDao, DbColumn> impl
      * @param tableName
      * @return
      */
-    public List<DbColumn> getDbColumn(String tableName) {
-        List<DbColumn> result = getBaseMapper().getDbColumn(tableName);
+    public List<DbColumn> getDbColumn(String tableName, String schema) {
+        List<DbColumn> result = getBaseMapper().getDbColumn(tableName, schema);
         return result;
     }
 }

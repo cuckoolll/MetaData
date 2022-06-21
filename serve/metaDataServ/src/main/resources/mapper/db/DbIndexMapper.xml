@@ -6,6 +6,7 @@
         (index_id,
         index_name,
         table_name,
+        table_schema,
         is_unique,
         index_schema,
         column_name,
@@ -15,6 +16,7 @@
             (#{item.indexId},
             #{item.indexName},
             #{item.tableName},
+            #{item.tableSchema},
             #{item.isUnique},
             #{item.indexSchema},
             #{item.columnName},
@@ -24,15 +26,17 @@
 
     <insert id="saveTempToDbIndex">
         insert into metaData.t_metadata_db_index
-        (index_id, index_name, table_name, is_unique, index_schema, column_name, index_type, update_time)
-        select a.index_id, a.index_name, a.table_name, a.is_unique, a.index_schema, a.column_name, a.index_type, now()
-        from metaData.t_metadata_db_index_temp a left join metaData.t_metadata_db_index b on a.index_name = b.index_name
+        (index_id, index_name, table_name, table_schema, is_unique, index_schema, column_name, index_type, update_time)
+        select a.index_id, a.index_name, a.table_name, a.table_schema, a.is_unique, a.index_schema, a.column_name, a.index_type, now()
+        from metaData.t_metadata_db_index_temp a
+            left join metaData.t_metadata_db_index b on a.index_name = b.index_name and a.table_schema = b.table_schema
         where b.index_name is null
     </insert>
 
     <select id="getMysqlAllIndex" resultType="com.meta.metadataserv.domain.model.DbIndex">
         select index_name,
         table_name,
+        table_schema,
         if(non_unique = 0, 1, 0) is_unique,
         index_schema,
         column_name,

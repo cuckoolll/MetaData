@@ -48,6 +48,11 @@
               align="center">
           </el-table-column>
           <el-table-column
+              prop="extra"
+              label="扩展方法"
+              align="center">
+          </el-table-column>
+          <el-table-column
               prop="remark"
               label="备注"
               align="center">

@@ -30,4 +30,15 @@ export function get(url) {
     });
 }
 
+export function postMutipartForm(url, data = {}) {
+    return new Promise((resolve, reject) => {
+        request({headers: {'Content-Type': 'multipart/form-data'}, method: 'post', url: url, data: data})
+            .then((response) => {
+                resolve(response.data);
+            })
+            .catch((err) => {
+                reject(err);
+            });
+    });
+}
 

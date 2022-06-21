@@ -35,7 +35,14 @@ public class DbTableServiceImpl extends ServiceImpl<DbTableDao, DbTable> impleme
      */
     public void syncTable(DbConf dbConf) {
         List<DbTable> tableList = getBaseMapper().getMysqlAllTables(dbConf.getDbSchema());
+        saveDbTable(tableList);
+    }
 
+    /**
+     * 保存表 .
+     * @param tableList
+     */
+    public void saveDbTable(List<DbTable> tableList) {
         //保存数据库中获取的表，增量增加，仅做Insert操作，已存在的表不做更新处理
         String tempTableName = ddlService.createTempTableForce(T_METADATA_DB_TABLE);
         getBaseMapper().insertIntoDbTableTemp(tableList);
@@ -49,7 +56,9 @@ public class DbTableServiceImpl extends ServiceImpl<DbTableDao, DbTable> impleme
      * @return
      */
     public Page<DbTable> getDbTable(TableQueryCond queryCond) {
-        Page page = new Page(queryCond.getCurrentPage(), queryCond.getSize());
+        Integer currentPage = queryCond.getCurrentPage() == null ? 1 : queryCond.getCurrentPage();
+        Integer size = queryCond.getSize() == null ? 20 : queryCond.getSize();
+        Page page = new Page(currentPage, size);
         Page<DbTable> result = getBaseMapper().getDbTable(page, queryCond);
         return result;
     }

@@ -34,12 +34,12 @@
             :width=tableColumnWidth
             align="center">
         </el-table-column>
-		<el-table-column
-		    prop="remark"
-		    label="备注"
-		    :width=tableColumnWidth
-		    align="center">
-		</el-table-column>
+        <el-table-column
+            prop="remark"
+            label="备注"
+            :width=tableColumnWidth
+            align="center">
+        </el-table-column>
         <el-table-column
             prop="updateTime"
             label="修改时间"

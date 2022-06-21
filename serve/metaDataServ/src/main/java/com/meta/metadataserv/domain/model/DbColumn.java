@@ -30,6 +30,10 @@ public class DbColumn {
     @TableField("table_name")
     private String tableName;
 
+    @ApiModelProperty(value = "所属库")
+    @TableField("table_schema")
+    private String tableSchema;
+
     @ApiModelProperty(value = "字段名")
     @TableField("column_name")
     private String columnName;
@@ -65,6 +69,10 @@ public class DbColumn {
     @ApiModelProperty(value = "备注")
     @TableField("remark")
     private String remark;
+
+    @ApiModelProperty(value = "扩展方法")
+    @TableField("extra")
+    private String extra;
 
     @ApiModelProperty(value = "排序")
     @TableField("sort")

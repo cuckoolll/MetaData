@@ -34,4 +34,18 @@ public interface IDdlService {
      * @param tableName
      */
     void dropTempTable(String tableName);
+
+    /**
+     * 通过动态sql创建表 .
+     * @param sql
+     */
+    void createTableByDynamicSql(String sql);
+
+    /**
+     * 生成建表语句 .
+     * @param tableName
+     * @param schema
+     * @return
+     */
+    String getCreateTableSql(String tableName, String schema);
 }
