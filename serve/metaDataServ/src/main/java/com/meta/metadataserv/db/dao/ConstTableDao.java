@@ -29,13 +29,6 @@ public interface ConstTableDao extends BaseMapper<ConstTable> {
     Page<ConstTable> getConstTable(Page page, @Param("queryCond") TableQueryCond queryCond);
 
     /**
-     * 获取常量表列 .
-     * @param queryCond
-     * @return
-     */
-    List<GridColumn> getGridColumn(@Param("queryCond") TableQueryCond queryCond);
-
-    /**
      * 查询常量表数据 .
      * @param queryCond
      * @return

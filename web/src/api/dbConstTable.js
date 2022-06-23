@@ -24,11 +24,19 @@ export default {
         return post(this.data().base + "/getGridColumn", param);
     },
 
+    getGridColumnWithoutCommon(param) {
+        return post(this.data().base + "/getGridColumnWithoutCommon", param);
+    },
+
     importData(param) {
         return postMutipartForm(this.data().base + "/importData", param);
     },
 
     getData(param) {
         return post(this.data().base + "/getData", param);
+    },
+
+    getColumnQuerySelectWithoutCommon(param) {
+        return post(this.data().base + "/getColumnQuerySelectWithoutCommon", param);
     },
 }

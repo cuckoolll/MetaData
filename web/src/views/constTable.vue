@@ -156,11 +156,13 @@ export default {
     handleSizeChange: function (size) {
       //一页显示多少条
       this.pageSize = size;
+      this.getConstTable();
     },
 
     handleCurrentChange: function (currentPage) {
       //页码更改方法
       this.currentPage = currentPage;
+      this.getConstTable();
     },
 
     handleChange(file, fileList) {

@@ -96,4 +96,21 @@
             and table_name = #{queryCond.tableName}
         </if>
     </select>
+
+    <select id="getDbColumnNameList" resultType="java.lang.String">
+        select column_name from t_metadata_db_column where table_schema = #{schema} and table_name = #{tableName}
+    </select>
+
+    <select id="getColumnQuerySelect" resultType="com.meta.metadataserv.domain.common.SelectVo">
+        select column_name id, column_name text from t_metadata_db_column where table_schema = #{schema} and table_name = #{tableName}
+    </select>
+
+    <select id="getGridColumn" resultType="com.meta.metadataserv.domain.common.GridColumn">
+        select column_name prop,
+               remark label
+        from t_metadata_db_column
+        where table_name = #{queryCond.tableName}
+          and table_schema = #{queryCond.schema}
+        order by is_primary desc, sort
+    </select>
 </mapper>

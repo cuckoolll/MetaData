@@ -1,5 +1,6 @@
 package com.meta.metadataserv.domain.query;
 
+import com.meta.metadataserv.domain.common.PageVo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -13,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CommonQueryCond {
+public class CommonQueryCond extends PageVo {
     @ApiModelProperty(value = "所属库")
     private String schema;
 

@@ -16,19 +16,10 @@
         </if>
     </select>
 
-    <select id="getGridColumn" resultType="com.meta.metadataserv.domain.common.GridColumn">
-        select column_name prop,
-               remark label
-        from t_metadata_db_column
-        where table_name = #{queryCond.tableName}
-          and table_schema = #{queryCond.schema}
-        order by is_primary desc, sort
-    </select>
-
     <select id="getData" resultType="java.util.Map">
-        select ${columns} from ${cond.schema}.${cond.tableName} where 1=1
+        select ${columns} from ${cond.tableName} where 1=1
         <if test=" null != cond.columnName and '' != cond.columnName and null != cond.columnValue and '' != cond.columnValue">
-            and #{cond.columnName} like concat('%', #{cond.columnValue}, '%')
+            and ${cond.columnName} like concat('%', #{cond.columnValue}, '%')
         </if>
     </select>
 </mapper>

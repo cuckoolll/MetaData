@@ -1,6 +1,7 @@
 package com.meta.metadataserv.db.service.impl;
 
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.meta.metadataserv.db.dao.ConstTableDao;
@@ -10,6 +11,7 @@ import com.meta.metadataserv.db.service.IDbColumnService;
 import com.meta.metadataserv.db.service.IDbTableService;
 import com.meta.metadataserv.db.service.IDdlService;
 import com.meta.metadataserv.domain.common.GridColumn;
+import com.meta.metadataserv.domain.common.SelectVo;
 import com.meta.metadataserv.domain.model.ConstTable;
 import com.meta.metadataserv.domain.model.DbColumn;
 import com.meta.metadataserv.domain.model.DbTable;
@@ -28,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -91,8 +94,17 @@ public class ConstTableServiceImpl extends ServiceImpl<ConstTableDao, ConstTable
      * @param queryCond
      * @return
      */
-    public List<GridColumn> getGridColumn(TableQueryCond queryCond) {
-        return getBaseMapper().getGridColumn(queryCond);
+    public List<GridColumn> getGridColumn(ColumnQueryCond queryCond) {
+        return dbColumnService.getGridColumn(queryCond);
+    }
+
+    /**
+     * 获取常量表列(无公共字段) .
+     * @param queryCond
+     * @return
+     */
+    public List<GridColumn> getGridColumnWithoutCommon(ColumnQueryCond queryCond) {
+        return dbColumnService.getGridColumnWithoutCommon(queryCond);
     }
 
     /**
@@ -132,8 +144,30 @@ public class ConstTableServiceImpl extends ServiceImpl<ConstTableDao, ConstTable
      * @return
      */
     public Page<Map> getData(CommonQueryCond queryCond) {
-        //TODO
-//        getBaseMapper().getData()
-        return null;
+//        List<String> columnStrList = dbColumnService.getColumnNameList(queryCond.getTableName(), queryCond.getSchema());
+        List<String> columnStrList = dbColumnService.getColumnNameListWithoutCommon(queryCond.getTableName(), queryCond.getSchema());
+        String columnStr = CollectionUtil.join(columnStrList, ",");
+
+        Page page = new Page(queryCond.getCurrentPage(), queryCond.getSize());
+        Page<Map> result = getBaseMapper().getData(page, queryCond, columnStr);
+        return result;
+    }
+
+    /**
+     * 查询字段下拉列表 .
+     * @param queryCond
+     * @return
+     */
+    public List<SelectVo> getColumnQuerySelect(ColumnQueryCond queryCond) {
+        return dbColumnService.getColumnQuerySelect(queryCond.getTableName(), queryCond.getSchema());
+    }
+
+    /**
+     * 查询字段下拉列表(无通用字段) .
+     * @param queryCond
+     * @return
+     */
+    public List<SelectVo> getColumnQuerySelectWithoutCommon(ColumnQueryCond queryCond) {
+        return dbColumnService.getColumnQuerySelectWithoutCommon(queryCond.getTableName(), queryCond.getSchema());
     }
 }

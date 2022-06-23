@@ -6,8 +6,10 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.meta.metadataserv.db.service.*;
 import com.meta.metadataserv.domain.common.GridColumn;
+import com.meta.metadataserv.domain.common.SelectVo;
 import com.meta.metadataserv.domain.model.ConstTable;
 import com.meta.metadataserv.domain.model.DbTable;
+import com.meta.metadataserv.domain.query.ColumnQueryCond;
 import com.meta.metadataserv.domain.query.CommonQueryCond;
 import com.meta.metadataserv.domain.query.TableQueryCond;
 import com.meta.metadataserv.domain.result.RespResult;
@@ -19,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 常量表接口 .
@@ -67,8 +70,20 @@ public class ConstTableController {
      */
     @ApiOperation("获取常量表列")
     @PostMapping("/getGridColumn")
-    public RespResult getGridColumn(@RequestBody TableQueryCond queryCond) {
+    public RespResult getGridColumn(@RequestBody ColumnQueryCond queryCond) {
         List<GridColumn> result = constTableService.getGridColumn(queryCond);
+        return RespResult.ok(result);
+    }
+
+    /**
+     * 获取常量表列.
+     * @param queryCond
+     * @return
+     */
+    @ApiOperation("获取常量表列（无公共字段）")
+    @PostMapping("/getGridColumnWithoutCommon")
+    public RespResult getGridColumnWithoutCommon(@RequestBody ColumnQueryCond queryCond) {
+        List<GridColumn> result = constTableService.getGridColumnWithoutCommon(queryCond);
         return RespResult.ok(result);
     }
 
@@ -97,6 +112,31 @@ public class ConstTableController {
     @ApiOperation("查询常量表数据")
     @PostMapping("/getData")
     public RespResult getData(@RequestBody CommonQueryCond queryCond) {
+        Page<Map> result = constTableService.getData(queryCond);
+        return RespResult.ok(result);
+    }
 
+    /**
+     * 查询字段下拉列表 .
+     * @param queryCond
+     * @return
+     */
+    @ApiOperation("查询字段下拉列表")
+    @PostMapping("/getColumnQuerySelect")
+    public RespResult getColumnQuerySelect(@RequestBody ColumnQueryCond queryCond) {
+        List<SelectVo> result = constTableService.getColumnQuerySelect(queryCond);
+        return RespResult.ok(result);
+    }
+
+    /**
+     * 查询字段下拉列表(无通用字段) .
+     * @param queryCond
+     * @return
+     */
+    @ApiOperation("查询字段下拉列表(无通用字段)")
+    @PostMapping("/getColumnQuerySelectWithoutCommon")
+    public RespResult getColumnQuerySelectWithoutCommon(@RequestBody ColumnQueryCond queryCond) {
+        List<SelectVo> result = constTableService.getColumnQuerySelectWithoutCommon(queryCond);
+        return RespResult.ok(result);
     }
 }

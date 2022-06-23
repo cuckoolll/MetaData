@@ -1,9 +1,12 @@
 package com.meta.metadataserv.db.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.meta.metadataserv.domain.common.GridColumn;
+import com.meta.metadataserv.domain.common.SelectVo;
 import com.meta.metadataserv.domain.model.DbColumn;
 import com.meta.metadataserv.domain.model.DbTable;
 import com.meta.metadataserv.domain.query.ColumnQueryCond;
+import com.meta.metadataserv.domain.query.TableQueryCond;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -42,4 +45,27 @@ public interface DbColumnDao extends BaseMapper<DbColumn> {
      * @return
      */
     List<DbColumn> getDbColumn(@Param("tableName") String tableName, @Param("schema") String schema);
+
+    /**
+     * 查询字段名List .
+     * @param tableName
+     * @param schema
+     * @return
+     */
+    List<String> getDbColumnNameList(@Param("tableName") String tableName, @Param("schema") String schema);
+
+    /**
+     * 查询字段下拉列表 .
+     * @param tableName
+     * @param schema
+     * @return
+     */
+    List<SelectVo> getColumnQuerySelect(@Param("tableName") String tableName, @Param("schema") String schema);
+
+    /**
+     * 获取常量表列 .
+     * @param queryCond
+     * @return
+     */
+    List<GridColumn> getGridColumn(@Param("queryCond") ColumnQueryCond queryCond);
 }
