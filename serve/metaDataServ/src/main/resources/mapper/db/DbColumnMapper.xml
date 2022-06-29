@@ -102,15 +102,24 @@
     </select>
 
     <select id="getColumnQuerySelect" resultType="com.meta.metadataserv.domain.common.SelectVo">
-        select column_name id, column_name text from t_metadata_db_column where table_schema = #{schema} and table_name = #{tableName}
+        select column_name id, remark text from t_metadata_db_column where table_schema = #{schema} and table_name = #{tableName}
     </select>
 
     <select id="getGridColumn" resultType="com.meta.metadataserv.domain.common.GridColumn">
         select column_name prop,
-               remark label
+               remark label,
+               is_primary isPk
         from t_metadata_db_column
         where table_name = #{queryCond.tableName}
           and table_schema = #{queryCond.schema}
         order by is_primary desc, sort
+    </select>
+
+    <select id="getPkColumnName" resultType="com.meta.metadataserv.domain.model.DbColumn">
+        select *
+        from t_metadata_db_column
+        where table_name = #{cond.tableName}
+          and table_schema = #{cond.schema}
+          and is_primary = 1
     </select>
 </mapper>

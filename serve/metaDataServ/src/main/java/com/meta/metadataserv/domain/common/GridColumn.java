@@ -19,4 +19,7 @@ public class GridColumn {
 
     @ApiModelProperty(value = "显示名")
     private String label;
+
+    @ApiModelProperty(value = "是否主键，0：否、1：是")
+    private int isPk;
 }

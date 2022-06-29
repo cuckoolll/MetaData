@@ -174,4 +174,13 @@ public class DbColumnServiceImpl extends ServiceImpl<DbColumnDao, DbColumn> impl
         }
         return columnList;
     }
+
+    /**
+     * 根据条件，查询主键列名
+     * @param cond
+     * @return
+     */
+    public DbColumn getPkColumnName(ColumnQueryCond cond) {
+        return getBaseMapper().getPkColumnName(cond);
+    }
 }

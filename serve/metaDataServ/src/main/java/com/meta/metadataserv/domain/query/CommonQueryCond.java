@@ -7,6 +7,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+import java.util.Map;
+
 @ApiModel(
         value = "通用查询条件",
         description = "通用查询条件"
@@ -26,4 +29,7 @@ public class CommonQueryCond extends PageVo {
 
     @ApiModelProperty(value = "字段值")
     private String columnValue;
+
+    @ApiModelProperty(value = "扩展数据")
+    private List<Map> dataList;
 }

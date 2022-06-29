@@ -32,11 +32,23 @@ export default {
         return postMutipartForm(this.data().base + "/importData", param);
     },
 
+    exportDataWithSql(param) {
+        return post(this.data().base + "/exportDataWithSql", param);
+    },
+
     getData(param) {
         return post(this.data().base + "/getData", param);
     },
 
     getColumnQuerySelectWithoutCommon(param) {
         return post(this.data().base + "/getColumnQuerySelectWithoutCommon", param);
+    },
+
+    saveConstData(param) {
+        return post(this.data().base + "/saveConstData", param);
+    },
+
+    deleteConstData(param) {
+        return post(this.data().base + "/deleteConstData", param);
     },
 }

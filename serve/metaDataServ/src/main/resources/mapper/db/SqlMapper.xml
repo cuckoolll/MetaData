@@ -4,4 +4,10 @@
     <update id="execDynamicSql">
         ${sql}
     </update>
+
+    <update id="execBatchDynamicSql">
+        <foreach collection="sqlList" item="sql" index="index" separator=";">
+            ${sql}
+        </foreach>
+    </update>
 </mapper>

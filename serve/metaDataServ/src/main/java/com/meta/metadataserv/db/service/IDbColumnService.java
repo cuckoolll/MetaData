@@ -86,4 +86,11 @@ public interface IDbColumnService extends IService<DbColumn>  {
      * @return
      */
     List<GridColumn> getGridColumnWithoutCommon(ColumnQueryCond queryCond);
+
+    /**
+     * 根据条件，查询主键列名
+     * @param cond
+     * @return
+     */
+    DbColumn getPkColumnName(ColumnQueryCond cond);
 }

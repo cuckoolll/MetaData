@@ -68,4 +68,11 @@ public interface DbColumnDao extends BaseMapper<DbColumn> {
      * @return
      */
     List<GridColumn> getGridColumn(@Param("queryCond") ColumnQueryCond queryCond);
+
+    /**
+     * 根据条件，查询主键列名
+     * @param cond
+     * @return
+     */
+    DbColumn getPkColumnName(@Param("cond") ColumnQueryCond cond);
 }

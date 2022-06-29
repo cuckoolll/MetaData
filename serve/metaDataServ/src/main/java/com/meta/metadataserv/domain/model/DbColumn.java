@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;
 
@@ -97,4 +98,26 @@ public class DbColumn {
     @ApiModelProperty(value = "创建操作员")
     @TableField("create_by")
     private String createBy;
+
+    /**
+     * 是否自增序列 .
+     * @return
+     */
+    public boolean isAutoIncrease() {
+        if (StringUtils.isNotEmpty(getExtra()) && "auto_increment".equals(getExtra().toLowerCase())) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 是否字符串型
+     * @return
+     */
+    public boolean isVarcharType() {
+        if ("varchar".equals(getDataType().toLowerCase()) || "text".equals(getDataType().toLowerCase())) {
+            return true;
+        }
+        return false;
+    }
 }

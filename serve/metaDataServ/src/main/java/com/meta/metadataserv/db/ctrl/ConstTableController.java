@@ -8,6 +8,7 @@ import com.meta.metadataserv.db.service.*;
 import com.meta.metadataserv.domain.common.GridColumn;
 import com.meta.metadataserv.domain.common.SelectVo;
 import com.meta.metadataserv.domain.model.ConstTable;
+import com.meta.metadataserv.domain.model.ConstTableData;
 import com.meta.metadataserv.domain.model.DbTable;
 import com.meta.metadataserv.domain.query.ColumnQueryCond;
 import com.meta.metadataserv.domain.query.CommonQueryCond;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Map;
 
@@ -105,6 +107,22 @@ public class ConstTableController {
     }
 
     /**
+     * 导入常量表数据 .
+     * @param response
+     * @return
+     */
+    @ApiOperation("导出常量表数据")
+    @PostMapping("/exportDataWithSql")
+    public RespResult exportDataWithSql(HttpServletResponse response, @RequestBody CommonQueryCond cond) {
+        try {
+            String result = constTableService.exportDataWithSql(response, cond);
+            return RespResult.ok(result);
+        } catch (Exception e) {
+            return RespResult.error(e.getMessage(), e.getMessage());
+        }
+    }
+
+    /**
      * 查询常量表数据 .
      * @param queryCond
      * @return
@@ -138,5 +156,37 @@ public class ConstTableController {
     public RespResult getColumnQuerySelectWithoutCommon(@RequestBody ColumnQueryCond queryCond) {
         List<SelectVo> result = constTableService.getColumnQuerySelectWithoutCommon(queryCond);
         return RespResult.ok(result);
+    }
+
+    /**
+     * 保存常量表数据 .
+     * @param constTableData
+     */
+    @ApiOperation("保存常量表数据")
+    @PostMapping("/saveConstData")
+    public RespResult saveConstData(@RequestBody ConstTableData constTableData) {
+        try {
+            constTableService.saveConstData(constTableData);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return RespResult.error(e.getMessage(), e.getMessage());
+        }
+        return RespResult.ok();
+    }
+
+    /**
+     * 删除常量表数据 .
+     * @param constTableData .
+     */
+    @ApiOperation("删除常量表数据")
+    @PostMapping("/deleteConstData")
+    public RespResult deleteConstData(@RequestBody ConstTableData constTableData) {
+        try {
+            constTableService.deleteConstData(constTableData);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return RespResult.error(e.getMessage(), e.getMessage());
+        }
+        return RespResult.ok();
     }
 }
