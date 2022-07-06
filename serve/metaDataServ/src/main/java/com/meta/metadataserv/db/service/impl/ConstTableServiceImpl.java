@@ -20,6 +20,7 @@ import com.meta.metadataserv.domain.query.ColumnQueryCond;
 import com.meta.metadataserv.domain.query.CommonQueryCond;
 import com.meta.metadataserv.domain.query.TableQueryCond;
 import com.meta.metadataserv.domain.result.RespResult;
+import com.meta.metadataserv.enums.CommonColumn;
 import com.meta.metadataserv.utils.FileUtil;
 import com.meta.metadataserv.utils.UuidUtil;
 import io.swagger.annotations.ApiOperation;
@@ -128,10 +129,16 @@ public class ConstTableServiceImpl extends ServiceImpl<ConstTableDao, ConstTable
         if (sql.indexOf("insert into") == -1) {
             throw new RuntimeException("未找到插入语句");
         }
+        //查看脚本有无delete语句
+        boolean isDelExist = (sql.indexOf("delete") != -1);
 
         int start = sql.indexOf("insert into") + "insert into".length();
         int end = sql.indexOf("(");
         String sqlTableName = sql.substring(start, end).trim();
+        if (sqlTableName.indexOf(".") > 0) {
+            sqlTableName = sqlTableName.split("\\.")[1];
+            sql = sql.substring(0, start) + " " + sqlTableName + " " + sql.substring(end, sql.length() - 1);
+        }
 
         if (!StringUtils.lowerCase(tableName).equals(sqlTableName)) {
             throw new RuntimeException("sql文件表名不匹配");
@@ -139,8 +146,10 @@ public class ConstTableServiceImpl extends ServiceImpl<ConstTableDao, ConstTable
 
         try {
             //清空原表
-            String delOriginSql = "delete from " + sqlTableName;
-            sqlDao.execDynamicSql(delOriginSql);
+            if (!isDelExist) {
+                String delOriginSql = "delete from " + sqlTableName;
+                sqlDao.execDynamicSql(delOriginSql);
+            }
 
             //向原表插入新数据
             sqlDao.execDynamicSql(sql);
@@ -174,7 +183,7 @@ public class ConstTableServiceImpl extends ServiceImpl<ConstTableDao, ConstTable
         StringBuilder sql = new StringBuilder();
         if (cond.getDataList() == null || cond.getDataList().isEmpty()) {
             if (StringUtils.isNotEmpty(cond.getColumnName()) && StringUtils.isNotEmpty(cond.getColumnValue())) {
-                sql.append("DELETE FROM " + cond.getTableName() + " WHERE " + cond.getColumnName() + "='" + cond.getColumnValue() + "';\n");
+                sql.append("DELETE FROM " + cond.getTableName() + " WHERE " + cond.getColumnName() + " like'%" + cond.getColumnValue() + "%';\n");
             } else {
                 sql.append("DELETE FROM " + cond.getTableName() + ";\n");
             }
@@ -183,16 +192,15 @@ public class ConstTableServiceImpl extends ServiceImpl<ConstTableDao, ConstTable
             columnQueryCond.setTableName(cond.getTableName());
             columnQueryCond.setSchema(cond.getSchema());
             DbColumn pkColumn = dbColumnService.getPkColumnName(columnQueryCond);
-            if (pkColumn == null) {
-                throw new RuntimeException("数据库" + cond.getSchema() + "表" + cond.getTableName() + "未设置主键");
+            if (pkColumn != null) {
+                String delSql = "DELETE FROM " + cond.getTableName() + " WHERE " + pkColumn.getColumnName() + " IN ({0});\n";
+                StringBuilder condSql = new StringBuilder();
+                for (Map map : records) {
+                    condSql.append("'" + map.get(pkColumn.getColumnName()) + "',");
+                }
+                condSql.deleteCharAt(condSql.length() - 1);
+                sql.append(MessageFormat.format(delSql, new String[] {condSql.toString()}));
             }
-            String delSql = "DELETE FROM " + cond.getTableName() + " WHERE " + pkColumn.getColumnName() + " IN ({0});\n";
-            StringBuilder condSql = new StringBuilder();
-            for (Map map : records) {
-                condSql.append("'" + map.get(pkColumn.getColumnName()) + "',");
-            }
-            condSql.deleteCharAt(condSql.length() - 1);
-            sql.append(MessageFormat.format(delSql, new String[] {condSql.toString()}));
         }
 
         sql.append(insertSql);
@@ -233,10 +241,17 @@ public class ConstTableServiceImpl extends ServiceImpl<ConstTableDao, ConstTable
     public Page<Map> getData(CommonQueryCond queryCond) {
         List<String> columnStrList = dbColumnService.getColumnNameList(queryCond.getTableName(), queryCond.getSchema());
 //        List<String> columnStrList = dbColumnService.getColumnNameListWithoutCommon(queryCond.getTableName(), queryCond.getSchema());
-        String columnStr = CollectionUtil.join(columnStrList, ",");
+        List<String> columnNameList = new ArrayList<>();
+        for (String columnName : columnStrList) {
+            if (CommonColumn.contains(columnName)) {
+                columnName = CommonColumn.getFormat(columnName);
+            }
+            columnNameList.add(columnName);
+        }
+        String columnNameStr = CollectionUtil.join(columnNameList, ",");
 
         Page page = new Page(queryCond.getCurrentPage(), queryCond.getSize());
-        Page<Map> result = getBaseMapper().getData(page, queryCond, columnStr);
+        Page<Map> result = getBaseMapper().getData(page, queryCond, columnNameStr);
         return result;
     }
 

@@ -100,6 +100,7 @@ public class ConstTableController {
         try {
             constTableService.importData(file, tableName);
         } catch (Exception e) {
+            log.error(e.getMessage(), e);
             return RespResult.error(e.getMessage(), e.getMessage());
         }
 

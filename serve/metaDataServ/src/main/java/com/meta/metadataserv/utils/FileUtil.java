@@ -38,8 +38,6 @@ public class FileUtil {
                 }
                 reader.close();
                 bb.close();
-            } else {
-                stringBuilder.append("空的");
             }
         } catch (Exception e) {
             e.printStackTrace();

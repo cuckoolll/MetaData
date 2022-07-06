@@ -14,7 +14,7 @@
     <el-input v-model="columnValue" type="text" style="margin-left: 10px; width: 150px;"></el-input>
     <el-button type="primary" @click="getData()" style="margin-left: 10px;">查询</el-button>
     <el-button @click="exportData()" style="float: right;">导出</el-button>
-    <el-button @click="showImportDataDlg = true" style="float: right;">导入</el-button>
+    <el-button @click="showImport()" style="float: right;">导入</el-button>
     <el-button @click="showDelete()" style="float: right;">删除</el-button>
     <el-button @click="showEdit()" style="float: right;">新增/修改</el-button>
     <el-table
@@ -55,6 +55,7 @@
         :on-change="handleChange"
         :file-list="fileList"
         accept=".sql,.SQL"
+        limit=1
     >
       <el-button type="primary">点击上传文件</el-button>
     </el-upload>
@@ -180,6 +181,10 @@ export default {
     },
 
     showConstTableData(table) {
+      this.columnName = '';
+      this.columnValue = '';
+      this.selection = [];
+
       this.table = table;
       this.tableName = table.tableName;
       this.title = table.tableName;
@@ -189,13 +194,18 @@ export default {
       this.getColumnQuerySelectWithoutCommon();
       this.getGridColumnWithoutCommon(table.tableName, table.schema);
       this.getData();
-      this.selection = [];
       this.showConstTableDataDlg = true;
     },
 
     handleChange(file, fileList) {
       this.file = file;
       this.fileList = fileList.slice(-3);
+    },
+
+    showImport() {
+      this.file = '';
+      this.fileList = [];
+      this.showImportDataDlg = true;
     },
 
     showEdit() {
@@ -234,13 +244,17 @@ export default {
     },
 
     async importData() {
+      if (this.fileList.length == 0) {
+        this.$message.warning("请选择导入文件");
+        return;
+      }
       let formData = new FormData();
       formData.append("file", this.file.raw);
       formData.append("tableName", this.tableName);
       const { code, data, msg } = await dbConstTable.importData(formData);
       if ('200' == code) {
         this.$message.success("导入成功");
-        this.getData();
+        await this.getData();
         this.showImportDataDlg = false;
       } else {
         this.$message.error(msg);
