@@ -1,15 +1,11 @@
 package com.meta.metadataserv.db.ctrl;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.meta.metadataserv.db.service.IDbColumnService;
-import com.meta.metadataserv.db.service.IDbIndexService;
-import com.meta.metadataserv.db.service.IDbManagerService;
-import com.meta.metadataserv.db.service.IDbTableService;
-import com.meta.metadataserv.domain.model.DbColumn;
-import com.meta.metadataserv.domain.model.DbConf;
-import com.meta.metadataserv.domain.model.DbIndex;
-import com.meta.metadataserv.domain.model.DbTable;
+import com.meta.metadataserv.db.service.*;
+import com.meta.metadataserv.domain.common.SelectVo;
+import com.meta.metadataserv.domain.model.*;
 import com.meta.metadataserv.domain.query.ColumnQueryCond;
+import com.meta.metadataserv.domain.query.DbQueryCond;
 import com.meta.metadataserv.domain.query.IndexQueryCond;
 import com.meta.metadataserv.domain.query.TableQueryCond;
 import com.meta.metadataserv.domain.result.RespResult;
@@ -45,6 +41,9 @@ public class DbManagerController {
     @Resource
     private IDbIndexService dbIndexService;
 
+    @Resource
+    private IDbService dbService;
+
     /**
      * 测试连接 .
      * @param dbConf ,
@@ -52,7 +51,12 @@ public class DbManagerController {
     @ApiOperation("测试连接")
     @PostMapping("/testConnection")
     public RespResult testConnection(@Validated @RequestBody DbConf dbConf) {
-        dbManagerService.testConnection(dbConf);
+        try {
+            dbManagerService.testConnection(dbConf);
+        } catch (Exception e) {
+            return RespResult.error(e.getMessage(), e.getMessage());
+        }
+
         return RespResult.ok();
     }
 
@@ -102,5 +106,45 @@ public class DbManagerController {
     public RespResult getDbIndex(@RequestBody IndexQueryCond queryCond) {
         List<DbIndex> result = dbIndexService.getDbIndex(queryCond.getTableName());
         return RespResult.ok(result);
+    }
+
+    /**
+     * 查询数据库信息 .
+     * @param cond
+     * @return
+     */
+    @ApiOperation("查询数据库信息")
+    @PostMapping("/getDb")
+    public RespResult getDb(@RequestBody DbQueryCond cond) {
+        Page<Db> result = dbService.getDb(cond);
+        return RespResult.ok(result);
+    }
+
+    /**
+     * 保存数据库
+     * @param db
+     * @return
+     */
+    @ApiOperation("保存数据库")
+    @PostMapping("/saveDb")
+    public RespResult saveDb(@RequestBody Db db) {
+        try {
+            dbService.saveDb(db);
+        } catch (Exception e) {
+            return RespResult.error(e.getMessage(), e.getMessage());
+        }
+        return RespResult.ok();
+    }
+
+    /**
+     * 删除数据库
+     * @param projectId
+     * @return
+     */
+    @ApiOperation("删除数据库")
+    @PostMapping("/delDb")
+    public RespResult delDb(@RequestParam String projectId) {
+        dbService.delDb(projectId);
+        return RespResult.ok();
     }
 }

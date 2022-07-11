@@ -71,12 +71,8 @@ public class DbManagerServiceImpl extends ServiceImpl<DbManagerDao, DbConf> impl
      * @param dbConf ,
      */
     public void testConnection(DbConf dbConf) {
-        try {
-            final Connection connection = getConnection(dbConf);
+        final Connection connection = getConnection(dbConf);
 //            connection.close();
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
-        }
     }
 
     /**

@@ -50,15 +50,19 @@ export default {
         dbUrl: '',
         dbName: '',
         dbSchema: '',
+        projectId: '',
       },
     }
   },
 
   methods: {
-    async showSetDbConf() {
-      const { code, data, msg } = await dbConf.getDbConfByPost({"currentPage":1, "size":1});
+    async showSetDbConf(projectId) {
+      this.dbForm.projectId = projectId;
+      const { code, data, msg } = await dbConf.getDbConfByPost({"projectId":projectId, "currentPage":1, "size":1});
       if ('200' == code && data != null && data.records.length > 0) {
         this.dbForm = data.records[0];
+      } else {
+        this.dbForm = [];
       }
       this.showSetDbConfDlg = true;
     },
@@ -66,11 +70,8 @@ export default {
     async saveDbConf() {
       const { code, data, msg } = await dbConf.saveDbConf(this.dbForm);
       if ('200' == code) {
-        this.$message.info("保存成功");
-        let res = await dbConf.getDbConfList();
-        if (res != null) {
-          this.dbForm = res;
-        }
+        this.$message.success("保存成功");
+        this.closeDlg();
       } else {
         this.$message.info(msg);
       }

@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.meta.metadataserv.db.dao.DbConfDao;
 import com.meta.metadataserv.domain.model.DbConf;
 import com.meta.metadataserv.db.service.IDbConfService;
+import com.meta.metadataserv.domain.query.DbConfQueryCond;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -22,16 +23,12 @@ import java.util.Set;
 public class DbConfServiceImpl extends ServiceImpl<DbConfDao, DbConf> implements IDbConfService {
     /**
      * 查询数据库配置信息 .
-     * @param currentPage
-     * @param size
+     * @param cond
      * @return
      */
-    public Page<DbConf> getDbconf(Integer currentPage, Integer size) {
-        currentPage = currentPage == null ? 1 : currentPage;
-        size = size == null ? 20 : size;
-
-        Page page = new Page<>(currentPage, size);
-        Page<DbConf> result = getBaseMapper().getDbconf(page);
+    public Page<DbConf> getDbconf(DbConfQueryCond cond) {
+        Page page = new Page<>(cond.getCurrentPage(), cond.getSize());
+        Page<DbConf> result = getBaseMapper().getDbconf(page, cond);
         return result;
     }
 

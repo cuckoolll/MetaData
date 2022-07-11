@@ -381,7 +381,7 @@ public class ConstTableServiceImpl extends ServiceImpl<ConstTableDao, ConstTable
         String delSql = "DELETE FROM " + constTableData.getTableName() + " WHERE {0}";
         List<Map> constDataList = constTableData.getConstDataList();
         for (Map map : constDataList) {
-            String condSql = pkColumn.getColumnName() + "=" + map.get(pkColumn.getColumnName());
+            String condSql = pkColumn.getColumnName() + "='" + map.get(pkColumn.getColumnName()) + "'";
             delSqlList.add(MessageFormat.format(delSql, new String[] {condSql}));
         }
 

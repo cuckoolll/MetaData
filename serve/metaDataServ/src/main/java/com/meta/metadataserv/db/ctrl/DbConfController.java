@@ -2,8 +2,11 @@ package com.meta.metadataserv.db.ctrl;
 
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.meta.metadataserv.db.service.IDbService;
 import com.meta.metadataserv.domain.common.PageVo;
+import com.meta.metadataserv.domain.common.SelectVo;
 import com.meta.metadataserv.domain.model.DbConf;
+import com.meta.metadataserv.domain.query.DbConfQueryCond;
 import com.meta.metadataserv.domain.result.RespResult;
 import com.meta.metadataserv.db.service.IDbConfService;
 import io.swagger.annotations.Api;
@@ -14,6 +17,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.Set;
 
 
@@ -32,17 +36,20 @@ public class DbConfController {
 	@Resource
 	private IDbConfService baseDbConfService;
 
-    @ApiOperation("查询数据库配置信息（GET）")
-    @GetMapping("/getDbconf")
-    public RespResult getDbconf(@RequestParam Integer currentPage, @RequestParam Integer size) {
-        Page<DbConf> result = baseDbConfService.getDbconf(currentPage, size);
-        return RespResult.ok(result);
-    }
+	@Resource
+    private IDbService dbService;
+
+//    @ApiOperation("查询数据库配置信息（GET）")
+//    @GetMapping("/getDbconf")
+//    public RespResult getDbconf(@RequestParam Integer currentPage, @RequestParam Integer size) {
+//        Page<DbConf> result = baseDbConfService.getDbconf(currentPage, size);
+//        return RespResult.ok(result);
+//    }
 
     @ApiOperation("查询数据库配置信息（POST）")
     @PostMapping("/getDbconfByPost")
-    public RespResult getDbconfByPost(@RequestBody PageVo vo) {
-        Page<DbConf> result = baseDbConfService.getDbconf(vo.getCurrentPage(), vo.getSize());
+    public RespResult getDbconfByPost(@RequestBody DbConfQueryCond cond) {
+        Page<DbConf> result = baseDbConfService.getDbconf(cond);
         return RespResult.ok(result);
     }
 
@@ -72,8 +79,20 @@ public class DbConfController {
     public RespResult save(@Validated @RequestBody DbConf dbConf) {
         if (StringUtils.isNotEmpty(dbConf.getDbId())) {
             update(dbConf);
+        } else {
+            create(dbConf);
         }
-        create(dbConf);
         return RespResult.ok();
+    }
+
+    /**
+     * 查询数据库名称下拉 .
+     * @return
+     */
+    @ApiOperation("查询数据库名称下拉")
+    @PostMapping("/getSchemaSelect")
+    public RespResult getSchemaSelect() {
+        List<SelectVo> result = dbService.getSchemaSelect();
+        return RespResult.ok(result);
     }
 }

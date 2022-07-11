@@ -46,6 +46,9 @@
         <if test=" queryCond.tableName != null and queryCond.tableName != '' ">
             and table_name like concat('%', #{queryCond.tableName}, '%')
         </if>
+        <if test=" queryCond.remark != null and queryCond.remark != '' ">
+            and remark like concat('%', #{queryCond.remark}, '%')
+        </if>
         order by table_name
     </select>
 </mapper>

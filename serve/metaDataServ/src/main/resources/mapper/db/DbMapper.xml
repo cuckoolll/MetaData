@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.meta.metadataserv.db.dao.DbDao">
+    <select id="getDb" resultType="com.meta.metadataserv.domain.model.Db">
+        select a.*,
+               ifnull(b.dbCount, 0) dbCount
+          from t_metadata_db a left join
+               (select b.table_schema, count(1) dbCount
+                  from t_metadata_db_table b
+                 group by b.table_schema) b on a.db_schema = b.table_schema
+         where 1 = 1
+         <if test="null != cond.dbSchema and '' != cond.dbSchema">
+             a.db_schema = #{cond.dbSchema}
+         </if>
+        <if test="null != cond.dbType and '' != cond.dbType">
+            a.db_type = #{cond.dbType}
+        </if>
+        order by a.create_time, a.project_id
+    </select>
+
+    <select id="getSchemaSelect" resultType="com.meta.metadataserv.domain.common.SelectVo">
+        select db_schema id, db_schema text from t_metadata_db order by db_schema
+    </select>
+
+    <select id="getDbExist" resultType="java.lang.Integer">
+        select count(1) from t_metadata_db where db_schema = #{dbSchema}
+    </select>
+</mapper>

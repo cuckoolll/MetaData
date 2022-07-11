@@ -31,4 +31,16 @@ export default {
     getDbIndex(param) {
         return post(this.data().base + "/getDbIndex", param);
     },
+
+    getDb(param) {
+        return post(this.data().base + "/getDb", param);
+    },
+
+    saveDb(param) {
+        return post(this.data().base + "/saveDb", param);
+    },
+
+    delDb(delId) {
+        return post(this.data().base + '/delDb?projectId=' + delId);
+    },
 }

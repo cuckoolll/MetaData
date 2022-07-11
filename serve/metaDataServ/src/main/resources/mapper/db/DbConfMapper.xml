@@ -15,7 +15,11 @@
                update_by,
                create_time,
                create_by
-          from metadata.t_metadata_db_conf
+          from t_metadata_db_conf
+         where 1 = 1
+        <if test="null != cond.projectId and '' != cond.projectId">
+            and project_id = #{cond.projectId}
+        </if>
         order by db_id
     </select>
 </mapper>

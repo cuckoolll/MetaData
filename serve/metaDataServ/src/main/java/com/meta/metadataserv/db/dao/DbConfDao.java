@@ -3,7 +3,9 @@ package com.meta.metadataserv.db.dao;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.meta.metadataserv.domain.model.DbConf;
+import com.meta.metadataserv.domain.query.DbConfQueryCond;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * @description  数据操作接口
@@ -13,5 +15,5 @@ import org.apache.ibatis.annotations.Mapper;
  **/
 @Mapper
 public interface DbConfDao extends BaseMapper<DbConf> {
-    Page<DbConf> getDbconf(Page page);
+    Page<DbConf> getDbconf(Page page, @Param("cond") DbConfQueryCond cond);
 }

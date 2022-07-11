@@ -1,19 +1,20 @@
 package com.meta.metadataserv.domain.model;
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import java.util.Date;
-import java.io.Serializable;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.experimental.Accessors;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
+
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * @description  实体
@@ -21,48 +22,35 @@ import org.springframework.format.annotation.DateTimeFormat;
  * @date 2022-05-25 11:41
  * @version V1.0
  **/
-@ApiModel(value="DbConf", description="DbConf")
+@ApiModel(value="db", description="db")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("t_metadata_db_conf")
-public class DbConf implements Serializable {
+@TableName("t_metadata_db")
+public class Db implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "主键")
-    @TableId("db_id")
-    private String dbId;
+    @TableId("project_id")
+    private String projectId;
 
-    @ApiModelProperty(value = "数据库用户名")
-    @TableField("db_username")
-    private String dbUsername;
-
-    @ApiModelProperty(value = "数据库密码")
-    @TableField("db_password")
-    private String dbPassword;
+    @ApiModelProperty(value = "数据库名称")
+    @TableField("db_schema")
+    private String dbSchema;
 
     @ApiModelProperty(value = "数据库类型")
     @TableField("db_type")
     private String dbType;
 
-    @ApiModelProperty(value = "数据库地址")
-    @TableField("db_url")
-    private String dbUrl;
+    @ApiModelProperty(value = "备注")
+    @TableField("remark")
+    private String remark;
 
-    @ApiModelProperty(value = "数据库名称")
-    @TableField("db_name")
-    private String dbName;
-
-    @ApiModelProperty(value = "数据库schema")
-    @TableField("db_schema")
-    private String dbSchema;
-
-    @ApiModelProperty(value = "所属项目id")
-    @TableField("project_id")
-    private String projectId;
+    @ApiModelProperty(value = "表数量")
+    private Integer dbCount;
 
     @ApiModelProperty(value = "排序", example = "1")
     @TableField("sort")

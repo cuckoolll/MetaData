@@ -4,6 +4,7 @@ import cn.hutool.db.Db;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.meta.metadataserv.domain.model.DbConf;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.meta.metadataserv.domain.query.DbConfQueryCond;
 
 import java.util.List;
 import java.util.Set;
@@ -17,11 +18,10 @@ import java.util.Set;
 public interface IDbConfService extends IService<DbConf> {
     /**
      * 查询数据库配置信息 .
-     * @param currentPage
-     * @param size
+     * @param cond
      * @return
      */
-    Page<DbConf> getDbconf(Integer currentPage, Integer size);
+    Page<DbConf> getDbconf(DbConfQueryCond cond);
 
     /**
      * 新增

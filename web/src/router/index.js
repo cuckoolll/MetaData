@@ -4,6 +4,7 @@ import home from "@/components/home.vue"
 const routes = [
     {
         path: '/home',
+        name: 'home',
         icon: 'HomeFilled',
         meta: {
             nav: '主页',
@@ -11,14 +12,31 @@ const routes = [
         component: home,
         children: [
             {
-                path: '',
+                path: '/home',
                 hidden: true,
-                component: () => import('@/views/project.vue'),
+                component: () => import('@/views/dbSchema.vue'),
+            }
+        ]
+    },
+    {
+        path: '/table',
+        name: 'table',
+        icon: 'Collection',
+        meta: {
+            nav: '表数据',
+        },
+        component: home,
+        children: [
+            {
+                path: '/table',
+                hidden: true,
+                component: () => import('@/views/dbTable.vue'),
             }
         ]
     },
     {
         path: '/constTable',
+        name: 'constTable',
         icon: 'List',
         meta: {
             nav: '常量表',
@@ -26,7 +44,7 @@ const routes = [
         component: home,
         children: [
             {
-                path: '',
+                path: '/constTable',
                 hidden: true,
                 component: () => import('@/views/constTable.vue'),
             }
