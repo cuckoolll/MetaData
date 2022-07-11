@@ -2,8 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.meta.metadataserv.db.dao.ConstTableDao">
     <insert id="create">
-        insert into t_metadata_const_table(table_name,table_schema,remark,update_time,create_time)
-        values (#{constTable.tableName}, #{constTable.tableSchema}, #{constTable.remark}, now(), now())
+        insert into t_metadata_const_table(table_id,table_name,table_schema,remark,update_time,create_time)
+        values (#{constTable.tableId},#{constTable.tableName}, #{constTable.tableSchema}, #{constTable.remark}, now(), now())
     </insert>
 
     <select id="getConstTable" resultType="com.meta.metadataserv.domain.model.ConstTable">

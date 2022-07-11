@@ -25,4 +25,8 @@
     <select id="getDbExist" resultType="java.lang.Integer">
         select count(1) from t_metadata_db where db_schema = #{dbSchema}
     </select>
+
+    <update id="updateTime">
+        update t_metadata_db set update_time = sysdate() where db_schema = #{schema}
+    </update>
 </mapper>

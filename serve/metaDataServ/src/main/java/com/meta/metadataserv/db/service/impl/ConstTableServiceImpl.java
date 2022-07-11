@@ -28,6 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -61,27 +62,31 @@ public class ConstTableServiceImpl extends ServiceImpl<ConstTableDao, ConstTable
      * @return
      */
     @Transactional
-    public void createConstTable(ConstTable constTable) {
-        TableQueryCond queryCond = new TableQueryCond();
-        queryCond.setTableName(constTable.getTableName());
-        queryCond.setSchema(constTable.getTableSchema());
-        Page<DbTable> tableList = dbTableService.getDbTable(queryCond);
-        if (tableList.getTotal() == 0) {
-            throw new RuntimeException(constTable.getTableSchema() + "库中，表" + constTable.getTableName() + "不存在");
-        }
-        Page<ConstTable> constTablePage = getConstTable(queryCond);
-        if (constTablePage.getTotal() > 0) {
-            throw new RuntimeException("常量表" + constTable.getTableName() + "已创建");
-        }
+    public void saveConstTable(ConstTable constTable) {
+        if (StringUtils.isEmpty(constTable.getTableId())) {
+            TableQueryCond queryCond = new TableQueryCond();
+            queryCond.setTableName(constTable.getTableName());
+            queryCond.setSchema(constTable.getTableSchema());
+            Page<DbTable> tableList = dbTableService.getDbTable(queryCond);
+            if (tableList.getTotal() == 0) {
+                throw new RuntimeException(constTable.getTableSchema() + "库中，表" + constTable.getTableName() + "不存在");
+            }
+            Page<ConstTable> constTablePage = getConstTable(queryCond);
+            if (constTablePage.getTotal() > 0) {
+                throw new RuntimeException("常量表" + constTable.getTableName() + "已创建");
+            }
 
-        String createSql = ddlService.getCreateTableSql(constTable.getTableName(), constTable.getTableSchema());
-        try {
-            ddlService.createTableByDynamicSql(createSql);
-        } catch (Exception e) {
-            throw new RuntimeException("建表sql执行错误");
+            String createSql = ddlService.getCreateTableSql(constTable.getTableName(), constTable.getTableSchema());
+            try {
+                ddlService.createTableByDynamicSql(createSql);
+            } catch (Exception e) {
+                throw new RuntimeException("建表sql执行错误");
+            }
+            constTable.setTableId(UuidUtil.getUuid());
+            getBaseMapper().create(constTable);
+        } else {
+            getBaseMapper().updateById(constTable);
         }
-
-        getBaseMapper().create(constTable);
     }
 
     /**
@@ -390,5 +395,13 @@ public class ConstTableServiceImpl extends ServiceImpl<ConstTableDao, ConstTable
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
+    }
+
+    /**
+     * 删除常量表 .
+     * @param tableId .
+     */
+    public void deleteConstTable(String tableId) {
+        getBaseMapper().deleteById(tableId);
     }
 }

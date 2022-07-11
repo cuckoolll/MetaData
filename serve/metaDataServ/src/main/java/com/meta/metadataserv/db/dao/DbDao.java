@@ -21,11 +21,9 @@ import java.util.List;
 public interface DbDao extends BaseMapper<Db> {
     Page<Db> getDb(Page page, @Param("cond") DbQueryCond cond);
 
-    /**
-     * 查询数据库名称下拉 .
-     * @return
-     */
     List<SelectVo> getSchemaSelect();
 
     Integer getDbExist(@Param("dbSchema") String dbSchema);
+
+    void updateTime(@Param("schema") String schema);
 }

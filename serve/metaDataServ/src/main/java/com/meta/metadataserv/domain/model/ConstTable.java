@@ -27,9 +27,12 @@ public class ConstTable {
 
     private static final long serialVersionUID = 1L;
 
+    @ApiModelProperty(value = "主键")
+    @TableId(value = "table_id")
+    private String tableId;
+
     @ApiModelProperty(value = "表名")
     @TableField("table_name")
-    @TableId(value = "table_name", type = IdType.AUTO)
     private String tableName;
 
     @ApiModelProperty(value = "所属库")

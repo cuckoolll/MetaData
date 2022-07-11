@@ -17,6 +17,7 @@ import com.meta.metadataserv.domain.result.RespResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -37,15 +38,15 @@ public class ConstTableController {
     private IConstTableService constTableService;
 
     /**
-     * 创建常量表 .
+     * 保存常量表 .
      * @param constTable
      * @return
      */
-    @ApiOperation("创建常量表")
-    @PostMapping("/createConstTable")
-    public RespResult createConstTable(@RequestBody ConstTable constTable) {
+    @ApiOperation("保存常量表")
+    @PostMapping("/saveConstTable")
+    public RespResult saveConstTable(@RequestBody ConstTable constTable) {
         try {
-            constTableService.createConstTable(constTable);
+            constTableService.saveConstTable(constTable);
         } catch (Exception e) {
             return RespResult.error(e.getMessage(), e.getMessage());
         }
@@ -184,6 +185,22 @@ public class ConstTableController {
     public RespResult deleteConstData(@RequestBody ConstTableData constTableData) {
         try {
             constTableService.deleteConstData(constTableData);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return RespResult.error(e.getMessage(), e.getMessage());
+        }
+        return RespResult.ok();
+    }
+
+    /**
+     * 删除常量表 .
+     * @param tableId .
+     */
+    @ApiOperation("删除常量表")
+    @PostMapping("/deleteConstTable")
+    public RespResult deleteConstTable(@RequestParam String tableId) {
+        try {
+            constTableService.deleteConstTable(tableId);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return RespResult.error(e.getMessage(), e.getMessage());

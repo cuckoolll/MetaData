@@ -12,8 +12,8 @@ export default {
         }
     },
 
-    createConstTable(param) {
-		return post(this.data().base + "/createConstTable", param);
+    saveConstTable(param) {
+		return post(this.data().base + "/saveConstTable", param);
 	},
 
     getConstTable(param) {
@@ -50,5 +50,9 @@ export default {
 
     deleteConstData(param) {
         return post(this.data().base + "/deleteConstData", param);
+    },
+
+    deleteConstTable(tableId) {
+        return post(this.data().base + "/deleteConstTable?tableId=" + tableId);
     },
 }

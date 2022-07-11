@@ -67,4 +67,10 @@ public interface IDbService extends IService<Db> {
      * @return
      */
     void delDb(String projectId);
+
+    /**
+     * 更新数据库时间 .
+     * @param schema
+     */
+    void updateTime(String schema);
 }

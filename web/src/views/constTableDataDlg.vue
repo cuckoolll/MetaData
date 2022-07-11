@@ -114,15 +114,6 @@
     </template>
   </el-dialog>
 
-  <el-dialog v-model="showDeleteDlg" title="提示" width="20%">
-    <span style="text-align: center">确定删除已选数据？</span>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="showDeleteDlg = false">取消</el-button>
-        <el-button type="primary" @click="deleteConstData()">确定</el-button>
-      </span>
-    </template>
-  </el-dialog>
 </template>
 
 <script>
@@ -135,7 +126,6 @@ export default {
       showConstTableDataDlg : false,
       showImportDataDlg: false,
       showEditDlg: false,
-      showDeleteDlg: false,
 
       title : '',
       tableName: '',
@@ -219,7 +209,14 @@ export default {
         this.$message.warning("请选择至少一条数据");
         return;
       }
-      this.showDeleteDlg = true;
+      this.$confirm("确定删除该数据?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+          .then(() => {
+            this.deleteConstData();
+          });
     },
 
     addConstItem() {
@@ -352,7 +349,6 @@ export default {
       if ('200' == code) {
         this.$message.success("删除成功");
         this.selection = [];
-        this.showDeleteDlg = false;
         await this.getData();
       } else {
         this.$message.error(msg);

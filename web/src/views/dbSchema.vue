@@ -102,15 +102,6 @@
 
     <dbConfDlg v-model="showSetDbConfDlg" ref="dbConfDlg" @on-close="showSetDbConfDlg=false"></dbConfDlg>
 
-    <el-dialog v-model="showDeleteDlg" title="提示" width="20%">
-      <span style="text-align: center">确定删除该数据？</span>
-      <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="showDeleteDlg = false">取消</el-button>
-        <el-button type="primary" @click="delDb()">确定</el-button>
-      </span>
-      </template>
-    </el-dialog>
   </div>
 </template>
 
@@ -153,8 +144,6 @@ export default {
       },
 
       dbTypeList: [{id : 'mysql', text : 'mysql'}],
-
-      delId: '',
     }
   },
 
@@ -194,8 +183,14 @@ export default {
     },
 
     showDbDel(row) {
-      this.showDeleteDlg = true;
-      this.delId = row.projectId;
+      this.$confirm("确定删除该数据?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+          .then(() => {
+            this.delDb(row.projectId);
+          });
     },
 
     showSetDbConf(row) {
@@ -219,12 +214,12 @@ export default {
     },
 
     async saveDb(dbFormRel) {
-      this.$refs[dbFormRel].validate((valid) => {
+      this.$refs[dbFormRel].validate(async (valid) => {
         if (valid) {
-          const { code, data, msg } = dbManager.saveDb(this.dbForm);
+          const { code, data, msg } = await dbManager.saveDb(this.dbForm);
           if ('200' == code) {
             this.$message.success("保存成功");
-            this.getDb();
+            await this.getDb();
             this.showDbEditDlg = false;
           } else {
             this.$message.error(msg);
@@ -235,8 +230,8 @@ export default {
       });
     },
 
-    async delDb() {
-      const { code, data, msg } = await dbManager.delDb(this.delId);
+    async delDb(delId) {
+      const { code, data, msg } = await dbManager.delDb(delId);
       if ('200' == code) {
         this.$message.success("删除成功");
         await this.getDb();

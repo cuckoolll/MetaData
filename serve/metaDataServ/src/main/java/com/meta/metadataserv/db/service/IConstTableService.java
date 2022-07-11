@@ -13,6 +13,7 @@ import com.meta.metadataserv.domain.query.TableQueryCond;
 import com.meta.metadataserv.domain.result.RespResult;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
@@ -21,11 +22,11 @@ import java.util.Map;
 
 public interface IConstTableService extends IService<ConstTable>  {
     /**
-     * 创建常量表 .
+     * 保存常量表 .
      * @param constTable
      * @return
      */
-    void createConstTable(ConstTable constTable);
+    void saveConstTable(ConstTable constTable);
 
     /**
      * 查询常量表 .
@@ -95,4 +96,10 @@ public interface IConstTableService extends IService<ConstTable>  {
      * @param constTableData .
      */
     void deleteConstData(ConstTableData constTableData);
+
+    /**
+     * 删除常量表 .
+     * @param tableId .
+     */
+     void deleteConstTable(String tableId);
 }

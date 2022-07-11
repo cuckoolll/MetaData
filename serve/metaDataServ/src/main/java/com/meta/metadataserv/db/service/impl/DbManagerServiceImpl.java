@@ -35,6 +35,9 @@ public class DbManagerServiceImpl extends ServiceImpl<DbManagerDao, DbConf> impl
     @Resource
     private IDbIndexService dbIndexService;
 
+    @Resource
+    private IDbService dbService;
+
     /**
      * 获取数据库连接 .
      * @param dbConf
@@ -103,6 +106,9 @@ public class DbManagerServiceImpl extends ServiceImpl<DbManagerDao, DbConf> impl
 
         //同步索引
         dbIndexService.syncIndex(dbConf);
+
+        //更新数据库时间
+        dbService.updateTime(dbConf.getDbSchema());
     }
 
 }

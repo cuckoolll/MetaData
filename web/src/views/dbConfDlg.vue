@@ -62,7 +62,8 @@ export default {
       if ('200' == code && data != null && data.records.length > 0) {
         this.dbForm = data.records[0];
       } else {
-        this.dbForm = [];
+        this.dbForm = {};
+        this.dbForm.projectId = projectId;
       }
       this.showSetDbConfDlg = true;
     },

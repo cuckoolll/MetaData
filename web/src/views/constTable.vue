@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-button type="primary" @click="showConstTableCreateDlg = true">创建</el-button>
+    <el-button type="primary" @click="showCreate">创建</el-button>
 
     <div style="padding-top:10px;">
       <el-table
@@ -49,15 +49,21 @@
             label="创建人"
             align="center">
         </el-table-column>
-<!--        <el-table-column-->
-<!--            label="操作"-->
-<!--            align="center">-->
-<!--          <template #default="scope">-->
-<!--            <el-button size="small" type="primary" @click="handleEdit(scope.$index, scope.row)">-->
-<!--              导入数据-->
-<!--            </el-button>-->
-<!--          </template>-->
-<!--        </el-table-column>-->
+        <el-table-column label="操作" align="center">
+          <template #default="scope">
+            <el-button type="primary" icon="Edit" circle @click="showEdit(scope.row)"></el-button>
+            <el-button type="danger" icon="Delete" circle @click="showDel(scope.row)"></el-button>
+<!--            <el-dropdown trigger="click" style="padding-left: 12px;">-->
+<!--              <el-button type="info" icon="MoreFilled" circle></el-button>-->
+<!--              <template #dropdown>-->
+<!--                <el-dropdown-menu>-->
+<!--                  <el-dropdown-item icon="Setting" @click="showSetDbConf(scope.row)">设置</el-dropdown-item>-->
+<!--                  <el-dropdown-item icon="Refresh" @click="syncMetaData(scope.row)">同步</el-dropdown-item>-->
+<!--                </el-dropdown-menu>-->
+<!--              </template>-->
+<!--            </el-dropdown>-->
+          </template>
+        </el-table-column>
       </el-table>
       <el-pagination
         style="padding-top: 10px; float: right;"
@@ -72,20 +78,20 @@
 
       <constTableDataDlg v-model="showConstTableDataDlg" ref="constTableDataDlg" @on-close="showConstTableDataDlg=false"></constTableDataDlg>
 
-      <el-dialog v-model="showConstTableCreateDlg" title="创建常量表" width="500px">
+      <el-dialog v-model="showConstTableEditDlg" :title="editDlgTitle" width="500px">
         <el-form :model="constTableForm">
           <el-form-item label="数据库名称" :label-width="formLabelWidth" prop="dbSchema">
-            <el-select v-model="constTableForm.tableSchema" class="m-2 inputWidth" filterable placeholder="Select">
+            <el-select v-model="constTableForm.tableSchema" class="m-2 inputWidth" filterable placeholder="Select" :disabled="isUpdate">
               <el-option
                   v-for="item in schemaOption"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
+                  :key="item.id"
+                  :label="item.text"
+                  :value="item.id"
               />
             </el-select>
           </el-form-item>
           <el-form-item label="表名" :label-width="formLabelWidth" prop="tableName">
-            <el-input type="text" v-model="constTableForm.tableName" autocomplete="off" class="inputWidth"/>
+            <el-input type="text" v-model="constTableForm.tableName" autocomplete="off" class="inputWidth" :disabled="isUpdate"/>
           </el-form-item>
           <el-form-item label="备注" :label-width="formLabelWidth" prop="remark">
             <el-input type="text" v-model="constTableForm.remark" autocomplete="off" class="inputWidth"/>
@@ -104,8 +110,8 @@
         </el-form>
         <template #footer>
           <span class="dialog-footer">
-            <el-button @click="showConstTableCreateDlg = false">取消</el-button>
-            <el-button type="primary" @click="saveConstTable()">确定</el-button>
+            <el-button @click="showConstTableEditDlg = false">取消</el-button>
+            <el-button type="primary" @click="saveConstTable()">保存</el-button>
           </span>
         </template>
       </el-dialog>
@@ -115,6 +121,8 @@
 <script>
 import constTableDataDlg from "@/views/constTableDataDlg";
 import dbConstTable from "@/api/dbConstTable";
+import dbConf from "@/api/dbConf";
+import dbManager from "@/api/dbManager";
 
 export default {
   components:{
@@ -130,18 +138,16 @@ export default {
       currentPage: 1,
       pageSize: 20,
 
-      showConstTableCreateDlg: false,
+      showConstTableEditDlg: false,
       showConstTableDataDlg: false,
 
-      schemaOption : [
-        {
-          value: 'basedata',
-          label: 'basedata',
-        },
-      ],
+      isUpdate: false,
+      editDlgTitle: '',
 
+      schemaOption : [],
 
       constTableForm : {
+        tableId: '',
         tableSchema: '',
         tableName: '',
         remark: '',
@@ -170,13 +176,59 @@ export default {
       this.fileList = fileList.slice(-3);
     },
 
+    showCreate() {
+      // if (this.$refs.dbFormRel) {
+      //   this.$refs.dbFormRel.resetFields();
+      // }
+      this.constTableForm.tableSchema = '';
+      this.constTableForm.tableName = '';
+      this.constTableForm.remark = '';
+      this.constTableForm.tableId = '';
+      this.dbEditDlgTitle = '创建';
+      this.isUpdate = false;
+      this.showConstTableEditDlg = true;
+    },
+
+    showEdit(row) {
+      // if (this.$refs.dbFormRel) {
+      //   this.$refs.dbFormRel.resetFields();
+      // }
+      this.constTableForm.tableSchema = row.tableSchema;
+      this.constTableForm.tableName = row.tableName;
+      this.constTableForm.remark = row.remark;
+      this.constTableForm.tableId = row.tableId;
+      this.editDlgTitle = '修改';
+      this.isUpdate = true;
+      this.showConstTableEditDlg = true;
+    },
+
+    showDel(row) {
+      this.$confirm("确定删除该数据?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+          .then(async () => {
+            const { code, data, msg } = await dbConstTable.deleteConstTable(row.tableId);
+            if ('200' == code) {
+              this.$message.success("删除成功");
+              await this.getConstTable();
+              this.showDeleteDlg = false;
+            } else {
+              this.$message.error(msg);
+            }
+          });
+    },
+
     showConstTableData (row, event, column) {
-      let table = {};
-      table.tableName = row.tableName;
-      table.schema = row.tableSchema;
-      table.remark = row.remark;
-      this.$refs.constTableDataDlg.showConstTableData(table);
-      this.showConstTableDataDlg = true;
+      if ('操作' != event.label) {
+        let table = {};
+        table.tableName = row.tableName;
+        table.schema = row.tableSchema;
+        table.remark = row.remark;
+        this.$refs.constTableDataDlg.showConstTableData(table);
+        this.showConstTableDataDlg = true;
+      }
     },
 
     async getConstTable() {
@@ -188,21 +240,28 @@ export default {
     },
 
     async saveConstTable() {
-      const { code, data, msg } = await dbConstTable.createConstTable(this.constTableForm);
+      const { code, data, msg } = await dbConstTable.saveConstTable(this.constTableForm);
       if ('200' == code) {
-        this.$message.success("创建成功");
+        this.$message.success("保存成功");
         await this.getConstTable();
-        this.showConstTableCreateDlg = false;
+        this.showConstTableEditDlg = false;
       } else {
         this.$message.error(msg);
       }
     },
 
-	
+    async getSchemaSelect() {
+      const { code, data, msg } = await dbConf.getSchemaSelect();
+      if ('200' == code) {
+        this.schemaOption = data;
+      }
+    },
+
   },
 
   created() {
     this.getConstTable();
+    this.getSchemaSelect();
   }
 }
 </script>

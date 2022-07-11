@@ -128,4 +128,12 @@ public class DbServiceImpl extends ServiceImpl<DbDao, Db> implements IDbService 
     public void delDb(String projectId) {
         getBaseMapper().deleteById(projectId);
     }
+
+    /**
+     * 更新数据库时间 .
+     * @param schema
+     */
+    public void updateTime(String schema) {
+        getBaseMapper().updateTime(schema);
+    }
 }
