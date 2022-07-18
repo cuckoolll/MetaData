@@ -32,5 +32,5 @@ public interface DbIndexDao extends BaseMapper<DbIndex> {
      * @param tableName
      * @return
      */
-    List<DbIndex> getDbIndex(String tableName);
+    List<DbIndex> getDbIndex(@Param("tableName") String tableName, @Param("schema") String schema);
 }

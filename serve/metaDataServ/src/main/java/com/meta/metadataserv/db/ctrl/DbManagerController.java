@@ -104,7 +104,7 @@ public class DbManagerController {
     @ApiOperation("查询索引")
     @PostMapping("/getDbIndex")
     public RespResult getDbIndex(@RequestBody IndexQueryCond queryCond) {
-        List<DbIndex> result = dbIndexService.getDbIndex(queryCond.getTableName());
+        List<DbIndex> result = dbIndexService.getDbIndex(queryCond.getTableName(), queryCond.getSchema());
         return RespResult.ok(result);
     }
 

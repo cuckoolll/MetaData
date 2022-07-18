@@ -1,5 +1,8 @@
 <template>
-  <el-dialog v-model="showConstTableDataDlg" :title="title" width="1200px">
+  <el-dialog v-model="showConstTableDataDlg"
+             :title="title"
+             width="1200px"
+  >
     <span>字段:</span>
     <el-select v-model="columnName" clearable style="margin-left: 10px; width: 150px;">
       <el-option
@@ -67,11 +70,15 @@
     </template>
   </el-dialog>
 
-  <el-dialog v-model="showEditDlg" title="新增/修改" width="1000px">
+  <el-dialog v-model="showEditDlg"
+             title="新增/修改"
+             width="1000px"
+             :close-on-click-modal="false">
     <el-button type="primary" @click="addConstItem()">新增</el-button>
     <el-table
         :data="constItemList"
         height="50vh"
+        border
         style="width: 100%; ">
       <el-table-column
           type="index"
@@ -92,16 +99,10 @@
           type="index"
           label="操作"
           align="center"
+          fixed="right"
           :width="80">
         <template #default="scope">
-          <el-button
-              link
-              type="primary"
-              size="small"
-              @click.prevent="deleteRow(scope.$index)"
-          >
-            删除
-          </el-button>
+          <el-button type="danger" icon="Delete" circle @click="deleteRow(scope.$index)"></el-button>
         </template>
       </el-table-column>
     </el-table>

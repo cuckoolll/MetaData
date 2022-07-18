@@ -24,12 +24,14 @@ import java.util.Date;
 @Accessors(chain = true)
 @TableName("t_metadata_db_table")
 public class DbTable {
-
     private static final long serialVersionUID = 1L;
+
+    @ApiModelProperty(value = "表id")
+    @TableId(value = "table_id")
+    private String tableId;
 
     @ApiModelProperty(value = "表名")
     @TableField("table_name")
-    @TableId(value = "table_name", type = IdType.AUTO)
     private String tableName;
 
     @ApiModelProperty(value = "表类型")

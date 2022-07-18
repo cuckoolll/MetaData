@@ -67,7 +67,7 @@
         select * from metadata.t_metadata_db_column
         where table_name = #{tableName}
         <if test=" null != schema and '' != schema">
-            and table_schema like concat('%', #{schema}, '%')
+            and table_schema = #{schema}
         </if>
         order by is_primary desc, sort
     </select>
@@ -121,5 +121,12 @@
         where table_name = #{cond.tableName}
           and table_schema = #{cond.schema}
           and is_primary = 1
+    </select>
+
+    <select id="getMaxSortByTable" resultType="java.lang.Integer">
+        select max(sort) sort
+        from t_metadata_db_column
+        where table_name = #{tableName}
+          and table_schema = #{schema}
     </select>
 </mapper>

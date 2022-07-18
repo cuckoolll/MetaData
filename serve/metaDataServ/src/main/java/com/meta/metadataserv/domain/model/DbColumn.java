@@ -115,9 +115,22 @@ public class DbColumn {
      * @return
      */
     public boolean isVarcharType() {
-        if ("varchar".equals(getDataType().toLowerCase()) || "text".equals(getDataType().toLowerCase())) {
+        if ("varchar".equals(getDataType().toLowerCase()) ||
+            "text".equals(getDataType().toLowerCase()) ||
+            "longtext".equals(getDataType().toLowerCase())) {
             return true;
         }
         return false;
+    }
+
+    /**
+     * 返回字段长度.
+     * @return
+     */
+    public Long getColumnSize() {
+        if (isVarcharType()) {
+            return this.varcharLength;
+        }
+        return this.numberLength;
     }
 }

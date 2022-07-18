@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.meta.metadataserv.db.dao.DbOptionDao">
+    <select id="getMaxOptId" resultType="java.lang.Integer">
+        select max(opt_id) optId from t_metadata_opt;
+    </select>
+
+    <insert id="insertOption">
+        insert into t_metadata_opt
+            (opt_id,
+             opt_type,
+             title,
+             description,
+             table_id,
+             table_name,
+             table_schema,
+             remark,
+             target,
+             step,
+             update_time,
+             update_by,
+             create_time,
+             create_by)
+        values
+            (#{option.optId},
+             #{option.optType},
+             #{option.title},
+             #{option.description},
+             #{option.tableId},
+             #{option.tableName},
+             #{option.tableSchema},
+             #{option.remark},
+             #{option.target},
+             #{option.step},
+             now(),
+             #{option.updateBy},
+             now(),
+             #{option.createBy})
+    </insert>
+
+    <insert id="insertColumnOption">
+        insert into t_metadata_opt_column
+            (column_id,
+             opt_id,
+             opt_type,
+             table_name,
+             table_schema,
+             column_name,
+             data_type,
+             column_default,
+             is_primary,
+             is_nullable,
+             varchar_length,
+             number_length,
+             number_scale,
+             remark,
+             extra,
+             sort)
+        values
+        <foreach collection="columnList" item="item" index="index" separator=",">
+            (#{item.columnId},
+             #{optId},
+             #{item.optType},
+             #{item.tableName},
+             #{item.tableSchema},
+             #{item.columnName},
+             #{item.dataType},
+             #{item.columnDefault},
+             #{item.isPrimary},
+             #{item.isNullable},
+             #{item.varcharLength},
+             #{item.numberLength},
+             #{item.numberScale},
+             #{item.remark},
+             #{item.extra},
+             #{item.sort})
+        </foreach>
+    </insert>
+
+    <insert id="insertIndexOption">
+        insert into t_metadata_opt_index
+            (index_id,
+            opt_id,
+            opt_type,
+            index_name,
+            table_name,
+            table_schema,
+            is_unique,
+            index_schema,
+            column_name,
+            index_type)
+        values
+        <foreach collection="indexList" item="item" index="index" separator=",">
+            (#{item.indexId},
+            #{optId},
+            #{item.optType},
+            #{item.indexName},
+            #{item.tableName},
+            #{item.tableSchema},
+            #{item.isUnique},
+            #{item.indexSchema},
+            #{item.columnName},
+            #{item.indexType})
+        </foreach>
+    </insert>
+
+    <insert id="insertColumnAlter">
+        insert into t_metadata_opt_column_alter
+        (column_id,opt_type)
+        values
+        <foreach collection="alterList" item="item" index="index" separator=",">
+            (#{item.columnId}, #{item.optType})
+        </foreach>
+    </insert>
+
+    <select id="getOptionById" resultType="com.meta.metadataserv.domain.model.OptionVo">
+        select * from t_metadata_opt where opt_id = #{optId}
+    </select>
+
+    <insert id="insertOptIntoDbTable">
+        insert into t_metadata_db_table
+            (table_id,
+            table_name,
+            table_type,
+            table_schema,
+            remark,
+            update_time)
+        select a.table_id, a.table_name, concat('TABLE') table_type, a.table_schema, a.remark, now()
+        from t_metadata_opt a
+        where a.opt_id = #{optId}
+          and a.opt_type = #{optType}
+    </insert>
+
+    <insert id="insertOptIntoDbColumn">
+        insert into t_metadata_db_column
+            (column_id,
+             table_name,
+             table_schema,
+             column_name,
+             data_type,
+             column_default,
+             is_primary,
+             is_nullable,
+             varchar_length,
+             number_length,
+             number_scale,
+             remark,
+             extra,
+             sort,
+             update_time)
+        select a.column_id, a.table_name, a.table_schema, a.column_name, a.data_type, a.column_default, a.is_primary,
+               a.is_nullable, a.varchar_length, a.number_length, a.number_scale, a.remark, a.extra, a.sort, now()
+        from t_metadata_opt_column a
+        where a.opt_id = #{optId}
+          and a.opt_type = #{optType}
+    </insert>
+
+    <insert id="insertOptIntoDbIndex">
+        insert into t_metadata_db_index
+            (index_id,
+            index_name,
+            table_name,
+            table_schema,
+            is_unique,
+            index_schema,
+            column_name,
+            index_type,
+            update_time)
+        select a.index_id, a.index_name, a.table_name, a.table_schema, a.is_unique, a.index_schema, a.column_name,
+               a.index_type, now()
+        from t_metadata_opt_index a
+        where a.opt_id = #{optId}
+          and a.opt_type = #{optType}
+    </insert>
+
+    <update id="updateOptIntoDbColumn">
+        update t_metadata_db_column a join t_metadata_opt_column b on a.column_id = b.column_id
+           set a.column_name = b.column_name,
+               a.data_type = b.data_type,
+               a.column_default = b.column_default,
+               a.varchar_length = b.varchar_length,
+               a.number_length = b.number_length,
+               a.number_scale = b.number_scale,
+               a.remark = b.remark
+         where b.opt_id = #{optId}
+           and b.opt_type = #{optType}
+    </update>
+
+    <delete id="delDbTableFromOpt">
+        delete from t_metadata_db_table
+        where table_id in (select a.table_id
+                             from t_metadata_opt a
+                            where a.opt_id = #{optId}
+                              and a.opt_type = #{optType})
+    </delete>
+
+    <delete id="delDbColumnFromOpt">
+        delete from t_metadata_db_column
+        where column_id in (select a.column_id
+                             from t_metadata_opt_column a
+                            where a.opt_id = #{optId}
+                              and a.opt_type = #{optType})
+    </delete>
+
+    <delete id="delDbIndexFromOpt">
+        delete from t_metadata_db_index
+        where index_id in (select a.index_id
+                             from t_metadata_opt_index a
+                            where a.opt_id = #{optId}
+                              and a.opt_type = #{optType})
+    </delete>
+
+    <select id="getOption" resultType="com.meta.metadataserv.domain.model.OptionVo">
+        select * from t_metadata_opt a where 1 = 1
+        <if test="null != cond.optType and '' != cond.optType">
+            and a.opt_type = #{cond.optType}
+        </if>
+        <if test="null != cond.tableName and '' != cond.tableName">
+            and a.table_name like concat('%', #{cond.tableName}, '%')
+        </if>
+        <if test="null != cond.target and '' != cond.target">
+            and a.target like concat('%', #{cond.target}, '%')
+        </if>
+        <if test="cond.status == 0">
+            and a.step &lt; #{step}
+        </if>
+        <if test="cond.status == 1">
+            and a.step = #{step}
+        </if>
+        order by opt_id desc
+    </select>
+
+    <select id="getColumnListById" resultType="com.meta.metadataserv.domain.model.ColumnVo">
+        select * from t_metadata_opt_column where opt_id = #{optId}
+    </select>
+
+    <select id="getIndexListById" resultType="com.meta.metadataserv.domain.model.IndexVo">
+        select * from t_metadata_opt_index where opt_id = #{optId}
+    </select>
+
+    <select id="getOptionExist" resultType="java.lang.Integer">
+        select count(1) con
+         from t_metadata_opt
+         where table_name = #{cond.tableName}
+         and table_schema = #{cond.tableSchema}
+         and step &lt; #{step};
+    </select>
+</mapper>

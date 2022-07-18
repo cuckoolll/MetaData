@@ -24,11 +24,13 @@
         </el-form-item>
       </el-form>
     </div>
-
+    <div style="margin-top: 5px;">
+      <el-button type="primary" icon="plus" text @click="showCreateTable">创建</el-button>
+    </div>
     <div>
       <el-table
           :data="tableData"
-          height="71vh"
+          height="66vh"
     		  @row-click="showTableDetail"
           style="width: 100%; ">
         <el-table-column
@@ -78,6 +80,16 @@
             label="创建人"
             align="center">
         </el-table-column>
+        <el-table-column
+            label="操作"
+            fixed="right"
+            align="center"
+            :width="105">
+          <template #default="scope">
+            <el-button type="primary" icon="Edit" circle @click="showEditTable(scope.row)"></el-button>
+            <el-button type="danger" icon="Delete" circle @click="showDelTable(scope.row)"></el-button>
+          </template>
+        </el-table-column>
       </el-table>
 	  <el-pagination 
 			style="padding-top: 10px; float: right;"
@@ -91,20 +103,24 @@
     </div>
 
     <dbConfDlg v-model="showSetDbConfDlg" ref="dbConfDlg" @on-close="showSetDbConfDlg=false"></dbConfDlg>
-	<dbTableDetailDlg v-model="showTableDetailDlg" ref="dbTableDetailDlg" @on-close="showTableDetailDlg=false"></dbTableDetailDlg>
+	  <dbTableDetailDlg v-model="showTableDetailDlg" ref="dbTableDetailDlg" @on-close="showTableDetailDlg=false"></dbTableDetailDlg>
+    <applicationFormDlg v-model="showApplicationDlg" ref="applicationFormDlg" @on-close="closeApplicationDlg()"></applicationFormDlg>
   </div>
 </template>
 
 <script>
 import dbConfDlg from "@/views/dbConfDlg";
 import dbTableDetailDlg from "@/views/dbTableDetailDlg";
+import applicationFormDlg from "@/views/applicationFormDlg";
 import dbConf from "@/api/dbConf";
 import dbManager from "@/api/dbManager";
+import dbOption from "@/api/dbOption";
 
 export default {
   components:{
     dbConfDlg,
-	  dbTableDetailDlg
+	  dbTableDetailDlg,
+    applicationFormDlg
   },
 
   data() {
@@ -123,6 +139,7 @@ export default {
 
       showSetDbConfDlg: false,
 	    showTableDetailDlg: false,
+      showApplicationDlg: false,
     }
   },
 
@@ -145,12 +162,62 @@ export default {
     },
 	
     showTableDetail (row, event, column) {
-      let table = {};
-      table.tableName = row.tableName;
-      table.schema = row.schema;
-      table.remark = row.remark;
-      this.$refs.dbTableDetailDlg.showTableDetail(table);
-      this.showTableDetailDlg = true;
+      if ('操作' != event.label) {
+        let table = {};
+        table.tableName = row.tableName;
+        table.schema = row.tableSchema;
+        table.remark = row.remark;
+        this.$refs.dbTableDetailDlg.showTableDetail(table);
+        this.showTableDetailDlg = true;
+      }
+    },
+
+    showCreateTable() {
+      let form = {};
+      form.title = "创建表";
+      form.tableSchema = this.queryForm.schema;
+      form.optType = 'create_table';
+      this.$refs.applicationFormDlg.showApplicationForm(form);
+      this.showApplicationDlg = true;
+    },
+
+    async showEditTable(row) {
+      let form = {};
+      form.title = "编辑表";
+      form.tableId = row.tableId;
+      form.tableName = row.tableName;
+      form.tableSchema = row.tableSchema;
+      form.remark = row.remark;
+      form.optType = 'edit_table';
+      const {code, data, msg} = await dbOption.isOptionInProc(form);
+      if ('200' == code && data == false) {
+        this.$refs.applicationFormDlg.showApplicationForm(form);
+        this.showApplicationDlg = true;
+      } else {
+        this.$message.warning(form.tableSchema + "库" + form.tableName + "表，存在未完成的变更记录")
+      }
+    },
+
+    async showDelTable(row) {
+      let form = {};
+      form.title = "删除表";
+      form.tableId = row.tableId;
+      form.tableName = row.tableName;
+      form.tableSchema = row.tableSchema;
+      form.remark = row.remark;
+      form.optType = 'del_table';
+      const {code, data, msg} = await dbOption.isOptionInProc(form);
+      if ('200' == code && data == false) {
+        this.$refs.applicationFormDlg.showApplicationForm(form);
+        this.showApplicationDlg = true;
+      } else {
+        this.$message.warning(form.tableSchema + "库" + form.tableName + "表，存在未完成的变更记录")
+      }
+    },
+
+    async closeApplicationDlg() {
+      await this.getDbTable();
+      this.showApplicationDlg = false;
     },
 
     async getSchemaSelect() {

@@ -75,4 +75,12 @@ public interface DbColumnDao extends BaseMapper<DbColumn> {
      * @return
      */
     DbColumn getPkColumnName(@Param("cond") ColumnQueryCond cond);
+
+    /**
+     * 根据表获取最大的字段排序 .
+     * @param tableName
+     * @param schema
+     * @return
+     */
+    Integer getMaxSortByTable(@Param("tableName") String tableName, @Param("schema") String schema);
 }

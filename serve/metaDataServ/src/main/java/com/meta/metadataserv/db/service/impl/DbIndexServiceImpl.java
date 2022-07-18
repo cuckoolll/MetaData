@@ -39,8 +39,8 @@ public class DbIndexServiceImpl extends ServiceImpl<DbIndexDao, DbIndex> impleme
      * @param tableName
      * @return
      */
-    public List<DbIndex> getDbIndex(String tableName) {
-        List<DbIndex> result = getBaseMapper().getDbIndex(tableName);
+    public List<DbIndex> getDbIndex(String tableName, String schema) {
+        List<DbIndex> result = getBaseMapper().getDbIndex(tableName, schema);
         return result;
     }
 }

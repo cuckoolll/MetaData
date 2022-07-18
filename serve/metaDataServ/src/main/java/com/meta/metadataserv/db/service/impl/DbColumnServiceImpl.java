@@ -183,4 +183,14 @@ public class DbColumnServiceImpl extends ServiceImpl<DbColumnDao, DbColumn> impl
     public DbColumn getPkColumnName(ColumnQueryCond cond) {
         return getBaseMapper().getPkColumnName(cond);
     }
+
+    /**
+     * 根据表获取最大的字段排序 .
+     * @param tableName
+     * @param schema
+     * @return
+     */
+    public Integer getMaxSortByTable(String tableName, String schema) {
+        return getBaseMapper().getMaxSortByTable(tableName, schema);
+    }
 }

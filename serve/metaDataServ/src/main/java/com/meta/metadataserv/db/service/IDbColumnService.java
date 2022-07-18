@@ -93,4 +93,12 @@ public interface IDbColumnService extends IService<DbColumn>  {
      * @return
      */
     DbColumn getPkColumnName(ColumnQueryCond cond);
+
+    /**
+     * 根据表获取最大的字段排序 .
+     * @param tableName
+     * @param schema
+     * @return
+     */
+    Integer getMaxSortByTable(String tableName, String schema);
 }

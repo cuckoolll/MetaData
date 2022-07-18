@@ -18,5 +18,5 @@ public interface IDbIndexService extends IService<DbIndex> {
      * @param tableName
      * @return
      */
-    List<DbIndex> getDbIndex(String tableName);
+    List<DbIndex> getDbIndex(String tableName, String schema);
 }

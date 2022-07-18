@@ -2,7 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.meta.metadataserv.db.dao.DbTableDao">
     <select id="getMysqlAllTables" resultType="com.meta.metadataserv.domain.model.DbTable">
-        select table_name,
+        select replace(uuid(), '-', '') table_id,
+               table_name,
                table_type,
                table_catalog,
                table_schema,
@@ -13,14 +14,16 @@
 
     <insert id="insertIntoDbTableTemp">
         insert into metaData.t_metadata_db_table_temp
-        (table_name,
+        (table_id,
+        table_name,
         table_type,
         table_catalog,
         table_schema,
         remark)
         values
         <foreach collection="saveList" item="item" index="index" separator=",">
-            (#{item.tableName},
+            (#{item.tableId},
+            #{item.tableName},
             #{item.tableType},
             #{item.tableCatalog},
             #{item.tableSchema},
@@ -31,8 +34,8 @@
 
     <insert id="saveTempToDbTable">
         insert into metaData.t_metadata_db_table
-        (table_name, table_type, table_catalog, table_schema, remark, update_time)
-        select a.table_name, a.table_type, a.table_catalog, a.table_schema, a.remark, now()
+        (table_id, table_name, table_type, table_catalog, table_schema, remark, update_time)
+        select a.table_id, a.table_name, a.table_type, a.table_catalog, a.table_schema, a.remark, now()
         from metaData.t_metadata_db_table_temp a
             left join metaData.t_metadata_db_table b on a.table_name = b.table_name and a.table_schema = b.table_schema
         where b.table_name is null

@@ -50,21 +50,22 @@ const routes = [
             }
         ]
     },
-    // {
-    //     path: '/setting',
-    //     icon: 'Setting',
-    //     meta: {
-    //         nav: '设置',
-    //     },
-    //     component: home,
-    //     children: [
-    //         {
-    //             path: '',
-    //             hidden: true,
-    //             component: () => import('@/views/dbConfDlg.vue'),
-    //         }
-    //     ]
-    // },
+    {
+        path: '/optionRecord',
+        name: 'optionRecord',
+        icon: 'Notebook',
+        meta: {
+            nav: '变更记录',
+        },
+        component: home,
+        children: [
+            {
+                path: '/optionRecord',
+                hidden: true,
+                component: () => import('@/views/optionRecord.vue'),
+            }
+        ]
+    },
 ]
 
 export const router = createRouter({

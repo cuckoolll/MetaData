@@ -9,6 +9,7 @@ import com.meta.metadataserv.domain.model.DbConf;
 import com.meta.metadataserv.domain.query.DbConfQueryCond;
 import com.meta.metadataserv.domain.result.RespResult;
 import com.meta.metadataserv.db.service.IDbConfService;
+import com.meta.metadataserv.enums.DataType;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -93,6 +94,17 @@ public class DbConfController {
     @PostMapping("/getSchemaSelect")
     public RespResult getSchemaSelect() {
         List<SelectVo> result = dbService.getSchemaSelect();
+        return RespResult.ok(result);
+    }
+
+    /**
+     * 查询DataType下拉 .
+     * @return
+     */
+    @ApiOperation("查询DataType下拉")
+    @PostMapping("/getDataTypeSelect")
+    public RespResult getDataTypeSelect() {
+        List<SelectVo> result = DataType.getDataTypeSelect();
         return RespResult.ok(result);
     }
 }

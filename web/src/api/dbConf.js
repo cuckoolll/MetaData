@@ -26,5 +26,9 @@ export default {
 
     getSchemaSelect(param) {
         return post(this.data().base + "/getSchemaSelect", param);
+    },
+
+    getDataTypeSelect(param) {
+        return post(this.data().base + "/getDataTypeSelect", param);
     }
 }
