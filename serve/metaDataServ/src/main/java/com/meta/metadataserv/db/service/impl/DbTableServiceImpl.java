@@ -1,6 +1,7 @@
 package com.meta.metadataserv.db.service.impl;
 
 
+import com.alibaba.druid.support.calcite.DDLColumn;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.meta.metadataserv.db.dao.DbManagerDao;
@@ -8,6 +9,7 @@ import com.meta.metadataserv.db.dao.DbTableDao;
 import com.meta.metadataserv.db.service.IDbManagerService;
 import com.meta.metadataserv.db.service.IDbTableService;
 import com.meta.metadataserv.db.service.IDdlService;
+import com.meta.metadataserv.domain.model.DbColumn;
 import com.meta.metadataserv.domain.model.DbConf;
 import com.meta.metadataserv.domain.model.DbTable;
 import com.meta.metadataserv.domain.query.TableQueryCond;

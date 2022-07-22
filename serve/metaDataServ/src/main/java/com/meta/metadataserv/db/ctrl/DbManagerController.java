@@ -44,10 +44,6 @@ public class DbManagerController {
     @Resource
     private IDbService dbService;
 
-    /**
-     * 测试连接 .
-     * @param dbConf ,
-     */
     @ApiOperation("测试连接")
     @PostMapping("/testConnection")
     public RespResult testConnection(@Validated @RequestBody DbConf dbConf) {
@@ -56,14 +52,9 @@ public class DbManagerController {
         } catch (Exception e) {
             return RespResult.error(e.getMessage(), e.getMessage());
         }
-
         return RespResult.ok();
     }
 
-    /**
-     * 同步数据库 。
-     * @param dbConf 。
-     */
     @ApiOperation("同步数据库")
     @PostMapping("/syncMetaData")
     public RespResult syncMetaData(@RequestBody DbConf dbConf) {
@@ -71,12 +62,6 @@ public class DbManagerController {
         return RespResult.ok();
     }
 
-
-    /**
-     * 通过条件查询表 .
-     * @param queryCond
-     * @return
-     */
     @ApiOperation("通过条件查询表")
     @PostMapping("/getDbTable")
     public RespResult getDbTable(@RequestBody TableQueryCond queryCond) {
@@ -84,11 +69,6 @@ public class DbManagerController {
         return RespResult.ok(result);
     }
 
-    /**
-     * 查询表字段
-     * @param queryCond
-     * @return
-     */
     @ApiOperation("查询表字段")
     @PostMapping("/getDbColumn")
     public RespResult getDbColumn(@RequestBody ColumnQueryCond queryCond) {
@@ -96,11 +76,6 @@ public class DbManagerController {
         return RespResult.ok(result);
     }
 
-    /**
-     * 查询表索引 .
-     * @param queryCond .
-     * @return
-     */
     @ApiOperation("查询索引")
     @PostMapping("/getDbIndex")
     public RespResult getDbIndex(@RequestBody IndexQueryCond queryCond) {
@@ -108,11 +83,6 @@ public class DbManagerController {
         return RespResult.ok(result);
     }
 
-    /**
-     * 查询数据库信息 .
-     * @param cond
-     * @return
-     */
     @ApiOperation("查询数据库信息")
     @PostMapping("/getDb")
     public RespResult getDb(@RequestBody DbQueryCond cond) {
@@ -120,11 +90,6 @@ public class DbManagerController {
         return RespResult.ok(result);
     }
 
-    /**
-     * 保存数据库
-     * @param db
-     * @return
-     */
     @ApiOperation("保存数据库")
     @PostMapping("/saveDb")
     public RespResult saveDb(@RequestBody Db db) {
@@ -136,15 +101,22 @@ public class DbManagerController {
         return RespResult.ok();
     }
 
-    /**
-     * 删除数据库
-     * @param projectId
-     * @return
-     */
     @ApiOperation("删除数据库")
     @PostMapping("/delDb")
     public RespResult delDb(@RequestParam String projectId) {
         dbService.delDb(projectId);
         return RespResult.ok();
+    }
+
+    @ApiOperation("导出创建表sql")
+    @PostMapping("/exportTableSql")
+    public RespResult exportTableSql(@RequestParam String tableId) {
+        try {
+            String result = dbManagerService.exportTableSql(tableId);
+            return RespResult.ok(result);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return RespResult.error(e.getMessage());
+        }
     }
 }

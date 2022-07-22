@@ -22,6 +22,7 @@ import com.meta.metadataserv.domain.query.TableQueryCond;
 import com.meta.metadataserv.domain.result.RespResult;
 import com.meta.metadataserv.enums.CommonColumn;
 import com.meta.metadataserv.utils.FileUtil;
+import com.meta.metadataserv.utils.SqlUtil;
 import com.meta.metadataserv.utils.UuidUtil;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
@@ -131,13 +132,13 @@ public class ConstTableServiceImpl extends ServiceImpl<ConstTableDao, ConstTable
         }
 
         sql = StringUtils.lowerCase(sql);
-        if (sql.indexOf("insert into") == -1) {
+        if (sql.indexOf(SqlUtil.INSERT_INTO) == -1) {
             throw new RuntimeException("未找到插入语句");
         }
         //查看脚本有无delete语句
-        boolean isDelExist = (sql.indexOf("delete") != -1);
+        boolean isDelExist = (sql.indexOf(SqlUtil.DELETE_FROM) != -1);
 
-        int start = sql.indexOf("insert into") + "insert into".length();
+        int start = sql.indexOf(SqlUtil.INSERT_INTO) + SqlUtil.INSERT_INTO.length();
         int end = sql.indexOf("(");
         String sqlTableName = sql.substring(start, end).trim();
         if (sqlTableName.indexOf(".") > 0) {
@@ -152,7 +153,7 @@ public class ConstTableServiceImpl extends ServiceImpl<ConstTableDao, ConstTable
         try {
             //清空原表
             if (!isDelExist) {
-                String delOriginSql = "delete from " + sqlTableName;
+                String delOriginSql = SqlUtil.DELETE_FROM + " " + sqlTableName;
                 sqlDao.execDynamicSql(delOriginSql);
             }
 
@@ -188,7 +189,7 @@ public class ConstTableServiceImpl extends ServiceImpl<ConstTableDao, ConstTable
         StringBuilder sql = new StringBuilder();
         if (cond.getDataList() == null || cond.getDataList().isEmpty()) {
             if (StringUtils.isNotEmpty(cond.getColumnName()) && StringUtils.isNotEmpty(cond.getColumnValue())) {
-                sql.append("DELETE FROM " + cond.getTableName() + " WHERE " + cond.getColumnName() + " like'%" + cond.getColumnValue() + "%';\n");
+                sql.append("DELETE FROM " + cond.getTableName() + " WHERE " + cond.getColumnName() + " LIKE '%" + cond.getColumnValue() + "%';\n");
             } else {
                 sql.append("DELETE FROM " + cond.getTableName() + ";\n");
             }

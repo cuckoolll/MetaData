@@ -1,6 +1,7 @@
 package com.meta.metadataserv.db.dao;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.meta.metadataserv.domain.model.ColumnAlter;
 import com.meta.metadataserv.domain.model.ColumnVo;
 import com.meta.metadataserv.domain.model.IndexVo;
 import com.meta.metadataserv.domain.model.OptionVo;
@@ -19,7 +20,7 @@ public interface DbOptionDao {
 
     void insertColumnOption(@Param("columnList") List<ColumnVo> columnList, @Param("optId") Integer optId);
 
-    void insertColumnAlter(@Param("alterList")List<Map> list);
+    void insertColumnAlter(@Param("alterList")List<ColumnAlter> list);
 
     void insertIndexOption(@Param("indexList")List<IndexVo> indexList, @Param("optId") Integer optId);
 
@@ -30,6 +31,8 @@ public interface DbOptionDao {
     void insertOptIntoDbColumn(@Param("optId") Integer optId, @Param("optType") String optType);
 
     void insertOptIntoDbIndex(@Param("optId") Integer optId, @Param("optType") String optType);
+
+    void updateOptIntoDbTable(@Param("optId") Integer optId, @Param("optType") String optType);
 
     void updateOptIntoDbColumn(@Param("optId") Integer optId, @Param("optType") String optType);
 
@@ -46,4 +49,8 @@ public interface DbOptionDao {
     List<IndexVo> getIndexListById(@Param("optId") Integer optId);
 
     Integer getOptionExist(@Param("cond") OptionQueryCond cond, @Param("step") Integer step);
+
+    Page<OptionVo> getOptionByTableAndSchema(Page page, @Param("cond") OptionQueryCond cond, @Param("step") Integer step);
+
+    List<ColumnAlter> getColumnAlter(@Param("optId") String optId);
 }

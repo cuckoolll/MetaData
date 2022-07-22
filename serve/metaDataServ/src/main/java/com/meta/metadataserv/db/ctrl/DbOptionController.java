@@ -84,4 +84,18 @@ public class DbOptionController {
         boolean isOptionInProc = dbOptionService.isOptionInProc(cond);
         return RespResult.ok(isOptionInProc);
     }
+
+    @ApiOperation("根据表和数据库查询变更记录")
+    @PostMapping("/getOptionByTableAndSchema")
+    public RespResult getOptionByTableAndSchema(@RequestBody OptionQueryCond cond) {
+        Page<OptionVo> result = dbOptionService.getOptionByTableAndSchema(cond);
+        return RespResult.ok(result);
+    }
+
+    @ApiOperation("变更记录sql导出")
+    @PostMapping("/exportApplicationForm")
+    public RespResult exportApplicationForm(@RequestParam String optId) {
+        String result = dbOptionService.exportApplicationForm(optId);
+        return RespResult.ok(result);
+    }
 }

@@ -12,8 +12,8 @@ import java.io.InputStreamReader;
 public class FileUtil {
     /**
      * 读取sql文件 .
-     * @param multipartFile
-     * @return
+     * @param multipartFile .
+     * @return .
      */
     public static String readSqlFile(MultipartFile multipartFile) {
         return readFile(multipartFile);
@@ -21,8 +21,8 @@ public class FileUtil {
 
     /**
      * 读取文件返回String .
-     * @param multipartFile
-     * @return
+     * @param multipartFile .
+     * @return .
      */
     public static String readFile(MultipartFile multipartFile) {
         StringBuilder stringBuilder = null;

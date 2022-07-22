@@ -43,4 +43,12 @@ export default {
     isOptionInProc(param) {
         return post(this.data().base + "/isOptionInProc", param);
     },
+
+    getOptionByTableAndSchema(param) {
+        return post(this.data().base + "/getOptionByTableAndSchema", param);
+    },
+
+    exportApplicationForm(param) {
+        return post(this.data().base + "/exportApplicationForm?optId=" + param);
+    },
 }

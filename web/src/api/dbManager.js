@@ -43,4 +43,8 @@ export default {
     delDb(delId) {
         return post(this.data().base + '/delDb?projectId=' + delId);
     },
+
+    exportTableSql(param) {
+        return post(this.data().base + '/exportTableSql?tableId=' + param);
+    },
 }

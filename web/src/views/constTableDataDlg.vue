@@ -119,6 +119,7 @@
 
 <script>
 import dbConstTable from "@/api/dbConstTable";
+import { doExport } from "@/utils/export";
 
 export default {
   name: "constTableDataDlg",
@@ -266,6 +267,7 @@ export default {
       }
 
       if (this.isExport) {
+        this.$message.warning("正在导出，请稍后再试");
         return;
       }
       this.isExport = true;
@@ -281,18 +283,7 @@ export default {
         this.$message.error(msg);
         return;
       }
-      let blob = new Blob([data], { type: "application/octet-stream" });
-      let downloadElement = document.createElement("a");
-
-      let href = window.URL.createObjectURL(blob); //创建下载的链接
-      downloadElement.href = href;
-      downloadElement.download = this.tableName + `数据.sql`; //下载后文件名
-
-      document.body.appendChild(downloadElement);
-      downloadElement.click(); //点击下载
-      document.body.removeChild(downloadElement); //下载完成移除元素
-      window.URL.revokeObjectURL(href); //释放掉blob对象
-      this.$message.success(`导出成功`);
+      doExport(data, this.tableName + `数据.sql`);
       this.isExport = false;
     },
 

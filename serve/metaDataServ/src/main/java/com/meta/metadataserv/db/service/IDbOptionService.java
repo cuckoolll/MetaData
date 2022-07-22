@@ -40,4 +40,18 @@ public interface IDbOptionService {
      * @return
      */
     boolean isOptionInProc(OptionQueryCond cond);
+
+    /**
+     * 根据表和数据库查询变更记录
+     * @param cond
+     * @return
+     */
+    Page<OptionVo> getOptionByTableAndSchema(OptionQueryCond cond);
+
+    /**
+     * 变更记录sql导出 .
+     * @param optId .
+     * @return .
+     */
+    String exportApplicationForm(String optId);
 }

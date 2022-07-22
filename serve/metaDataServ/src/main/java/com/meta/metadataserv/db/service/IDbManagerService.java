@@ -14,4 +14,11 @@ public interface IDbManagerService {
      * @param dbConf .
      */
     void syncMetaData(DbConf dbConf);
+
+    /**
+     * 导出创建表sql .
+     * @param tableId
+     * @return
+     */
+    String exportTableSql(String tableId);
 }

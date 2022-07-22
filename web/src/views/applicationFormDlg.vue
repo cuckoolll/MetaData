@@ -39,7 +39,7 @@
             <el-input v-model="applicationForm.remark"
                       type="text"
                       style="width: 250px;"
-                      :disabled="optType !== 'create_table'"></el-input>
+                      :disabled="optType === 'del_table' || optType === 'show_table'"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
@@ -93,11 +93,11 @@
                           v-model="scope.row.columnName"
                           type="text"
                           class="errorInput"
-                          :disabled = "scope.row.isEditAble === false"></el-input>
+                          :disabled = "scope.row.optType !== 'add_column'"></el-input>
                 <el-input v-else
                           v-model="scope.row.columnName"
                           type="text"
-                          :disabled="scope.row.isEditAble === false || optType === 'show_table'"></el-input>
+                          :disabled = "scope.row.optType !== 'add_column' || optType === 'show_table'"></el-input>
               </template>
             </el-table-column>
             <el-table-column
@@ -208,7 +208,7 @@
               <template #default="scope">
                 <el-input v-model="scope.row.numberScale"
                           type="number"
-                          :disabled="scope.row.isScaleAble === false || scope.row.isEditAble === false"></el-input>
+                          :disabled="scope.row.isScaleAble === false || scope.row.isEditAble === false || optType === 'show_table'"></el-input>
               </template>
             </el-table-column>
             <el-table-column
@@ -374,6 +374,11 @@
               @click="save('applicationForm')"
               v-if="optType !== 'show_table'"
           >保存</el-button>
+          <el-button
+              type="primary"
+              @click="exportApplicationForm()"
+              v-if="optType === 'show_table'"
+          >导出</el-button>
         </span>
     </template>
   </el-dialog>
@@ -383,6 +388,7 @@
 import dbManager from "@/api/dbManager";
 import dbConf from "@/api/dbConf";
 import dbOption from "@/api/dbOption";
+import {doExport} from "@/utils/export";
 
 export default {
   name: "applicationFormDlg",
@@ -399,7 +405,7 @@ export default {
       rules: {
         tableSchema: [{ required: true, message: '请选择数据库名称', trigger: 'blur' }],
         tableName: [{ required: true, message: '请输入表名', trigger: 'blur' }],
-        remark: [{ required: true, message: '请输入表备注', trigger: 'blur' }],
+        // remark: [{ required: true, message: '请输入表备注', trigger: 'blur' }],
         description: [{ required: true, message: '请输入说明', trigger: 'blur' }],
       },
 
@@ -456,9 +462,17 @@ export default {
 
     addItem() {
       if (this.tabsActiveName == 'first') { //字段
-        this.columnsData.push({optType:'add_column', optTypeStr:this.columnOptTypeIndex['add_column'], isEditAble:true});
+        this.columnsData.push({
+          optType:'add_column',
+          optTypeStr:this.columnOptTypeIndex['add_column'],
+          isEditAble:true
+        });
       } else if (this.tabsActiveName == 'second') { //索引
-        this.indexData.push({optType:'add_index', optTypeStr:this.indexOptTypeIndex['add_index'], isEditAble:true});
+        this.indexData.push({
+          optType:'add_index',
+          optTypeStr:this.indexOptTypeIndex['add_index'],
+          isEditAble:true
+        });
       }
     },
 
@@ -547,12 +561,16 @@ export default {
     },
 
     async save(applicationForm) {
+      let that = this;
       this.$refs[applicationForm].validate(async (valid) => {
         if (valid) {
-          let errCount = this.checkColumnAndIndexValid();
-          if (errCount > 0) {
-            return false;
+          if (that.optType !== 'del_table') {
+            let errCount = this.checkColumnAndIndexValid();
+            if (errCount > 0) {
+              return false;
+            }
           }
+
           let option = this.applicationForm;
           option.columnList = this.columnsData;
           option.indexList = this.indexData;
@@ -578,6 +596,15 @@ export default {
       if (this.columnsData.length > 0) {
         this.columnsData[0].isColumnNameErr = true;
       }
+    },
+
+    async exportApplicationForm() {
+      const { code, data, msg } = await dbOption.exportApplicationForm(this.optId);
+      if ('200' != code) {
+        this.$message.error(msg);
+        return;
+      }
+      doExport(data, "变更记录单：" + this.optId + `.sql`);
     },
 
     async getDbColumn(tableName, schema) {
@@ -640,6 +667,8 @@ export default {
           for (let i = 0; i < this.columnsData.length; i++) {
             this.columnsData[i].columnSize = this.columnsData[i].varcharLength ? this.columnsData[i].varcharLength : this.columnsData[i].numberLength;
             this.columnsData[i].optTypeStr = this.columnOptTypeIndex[this.columnsData[i].optType];
+            this.columnsData[i].isPrimary = this.columnsData[i].isPrimary ? this.columnsData[i].isPrimary + '' : '';
+            this.columnsData[i].isNullable = this.columnsData[i].isNullable ? this.columnsData[i].isNullable + '' : '0';
           }
           for (let i = 0; i < this.indexData.length; i++) {
             this.indexData[i].optTypeStr = this.indexOptTypeIndex[this.indexData[i].optType];
@@ -683,7 +712,6 @@ export default {
           if (this.columnsData[i].dataType == 'decimal') {
             this.columnsData[i].isScaleAble = true;
             this.columnsData[i].isSizeAble = true;
-            this.columnsData[i].columnSize = null;
           } else {
             this.columnsData[i].isScaleAble = false;
             switch (this.columnsData[i].dataType) {

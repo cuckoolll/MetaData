@@ -45,6 +45,7 @@
             index_type
         from information_schema.statistics
         where table_schema = #{schema}
+          and index_name != 'PRIMARY'
         <if test=" null != tableName and '' != tableName">
             and table_name = #{tableName}
         </if>

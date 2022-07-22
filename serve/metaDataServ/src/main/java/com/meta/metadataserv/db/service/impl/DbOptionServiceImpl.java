@@ -4,24 +4,21 @@ package com.meta.metadataserv.db.service.impl;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.meta.metadataserv.db.dao.DbOptionDao;
 import com.meta.metadataserv.db.service.IDbColumnService;
-import com.meta.metadataserv.db.service.IDbIndexService;
 import com.meta.metadataserv.db.service.IDbOptionService;
 import com.meta.metadataserv.db.service.IDbTableService;
 import com.meta.metadataserv.domain.model.*;
 import com.meta.metadataserv.domain.query.OptionQueryCond;
 import com.meta.metadataserv.domain.query.TableQueryCond;
 import com.meta.metadataserv.enums.OptType;
+import com.meta.metadataserv.utils.SqlUtil;
 import com.meta.metadataserv.utils.UuidUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Transactional
@@ -43,10 +40,14 @@ public class DbOptionServiceImpl implements IDbOptionService {
         return FINISH_STEP;
     }
 
+    private synchronized Integer getMaxOptId() {
+        return dbOptionDao.getMaxOptId();
+    }
+
     /**
      * 新增操作 .
-     * @param option
-     * @return
+     * @param option .
+     * @return .
      */
     public Integer createOption(OptionVo option) {
         //判断当前表是否存在
@@ -60,7 +61,7 @@ public class DbOptionServiceImpl implements IDbOptionService {
             }
         }
 
-        Integer optId = dbOptionDao.getMaxOptId();
+        Integer optId = getMaxOptId();
         if (optId == null) {
             optId = 0;
         }
@@ -76,7 +77,7 @@ public class DbOptionServiceImpl implements IDbOptionService {
 
         String tableOptType = option.getOptType();
         List<ColumnVo> newColumnList = option.getColumnList();
-        List<DbColumn> oldColumnList = null;
+        List<DbColumn> oldColumnList = new ArrayList<>();
         Map<String, DbColumn> oldColumnMap = new HashMap<>();
         //编辑表时，获取表原始字段List和索引List
         if (OptType.EDIT_TABLE.getType().equals(tableOptType)) {
@@ -97,26 +98,28 @@ public class DbOptionServiceImpl implements IDbOptionService {
             sort = 0;
         }
 
-        List<Map> columnChangeTypeSaveList = new ArrayList<>();
+        List<ColumnAlter> columnChangeTypeSaveList = new ArrayList<>();
         List<ColumnVo> columnList = option.getColumnList();
         List<ColumnVo> columnSaveList = new ArrayList<>();
         for (ColumnVo vo : columnList) {
-            if (StringUtils.isEmpty(vo.getOptType())) {
+            if (StringUtils.isEmpty(vo.getOptType()) && !OptType.DEL_TABLE.getType().equals(option.getOptType())) {
                 continue;
             }
-            ColumnVo saveVo = vo;
+            ColumnVo saveVo = new ColumnVo();
+            BeanUtils.copyProperties(vo, saveVo);
 
             //编辑列时，设置字段的变更类型
             if (OptType.EDIT_COLUMN.getType().equals(vo.getOptType())) {
                 List<String> columnChangeTypeList = getColumnChangeTypeList(vo, oldColumnMap.get(vo.getColumnId()));
-                if (columnChangeTypeList == null || columnChangeTypeList.isEmpty()) {
+                if (columnChangeTypeList.isEmpty()) {
                     continue;
                 }
                 for (String changeType : columnChangeTypeList) {
-                    Map<String,String> columnChangeTypeMap = new HashMap<>();
-                    columnChangeTypeMap.put("columnId", vo.getColumnId());
-                    columnChangeTypeMap.put("optType", changeType);
-                    columnChangeTypeSaveList.add(columnChangeTypeMap);
+                    ColumnAlter columnAlter = new ColumnAlter();
+                    columnAlter.setColumnId(vo.getColumnId());
+                    columnAlter.setOptType(changeType);
+                    columnAlter.setOptId(optId);
+                    columnChangeTypeSaveList.add(columnAlter);
                 }
             }
 
@@ -139,7 +142,7 @@ public class DbOptionServiceImpl implements IDbOptionService {
             saveVo.setTableSchema(option.getTableSchema());
             columnSaveList.add(saveVo);
         }
-        if (columnSaveList != null && columnSaveList.size() > 0) {
+        if (columnSaveList.size() > 0) {
             //保存字段操作记录
             dbOptionDao.insertColumnOption(columnSaveList, optId);
 
@@ -152,6 +155,10 @@ public class DbOptionServiceImpl implements IDbOptionService {
         List<IndexVo> indexList = option.getIndexList();
         List<IndexVo> indexSaveList = new ArrayList<>();
         for (IndexVo vo : indexList) {
+            if (StringUtils.isEmpty(vo.getOptType()) && !OptType.DEL_TABLE.getType().equals(option.getOptType())) {
+                continue;
+            }
+
             IndexVo saveVo = vo;
             if (StringUtils.isEmpty(vo.getIndexId())) {
                 saveVo.setIndexId(UuidUtil.getUuid());
@@ -162,11 +169,13 @@ public class DbOptionServiceImpl implements IDbOptionService {
 
             List<String> columnNameList = vo.getColumnNameList();
             for (String columnName : columnNameList) {
-                saveVo.setColumnName(columnName);
-                indexSaveList.add(saveVo);
+                IndexVo tempIndexVo = new IndexVo();
+                BeanUtils.copyProperties(saveVo, tempIndexVo);
+                tempIndexVo.setColumnName(columnName);
+                indexSaveList.add(tempIndexVo);
             }
         }
-        if (indexSaveList != null && indexSaveList.size() > 0) {
+        if (indexSaveList.size() > 0) {
             //保存索引操作记录
             dbOptionDao.insertIndexOption(indexSaveList, optId);
         }
@@ -176,16 +185,16 @@ public class DbOptionServiceImpl implements IDbOptionService {
 
     /**
      * 获取字段变更类型List .
-     * @param newColumn
-     * @param oldColumn
-     * @return
+     * @param newColumn .
+     * @param oldColumn .
+     * @return .
      */
     private List<String> getColumnChangeTypeList(ColumnVo newColumn, DbColumn oldColumn) {
         List<String> columnChangeTypeList = new ArrayList<>();
         //字段名称变更
-        if (!newColumn.getColumnName().equals(oldColumn.getColumnName())) {
-            columnChangeTypeList.add(OptType.COLUMN_NAME_CHANGE.getType());
-        }
+//        if (!newColumn.getColumnName().equals(oldColumn.getColumnName())) {
+//            columnChangeTypeList.add(OptType.COLUMN_NAME_CHANGE.getType());
+//        }
         //字段类型变更
         if (!newColumn.getDataType().equals(oldColumn.getDataType())) {
             columnChangeTypeList.add(OptType.COLUMN_TYPE_CHANGE.getType());
@@ -194,13 +203,21 @@ public class DbOptionServiceImpl implements IDbOptionService {
         if (!String.valueOf(newColumn.getColumnDefault()).equals(String.valueOf(oldColumn.getColumnDefault()))) {
             columnChangeTypeList.add(OptType.COLUMN_DEFAULT_CHANGE.getType());
         }
-        //字段长度变更
-        if (newColumn.getColumnSize() != oldColumn.getColumnSize()) {
-            columnChangeTypeList.add(OptType.COLUMN_LENGTH_CHANGE.getType());
+        //字段长度增大
+        long newColumnSize = newColumn.getColumnSize() == null ? 0 : newColumn.getColumnSize();
+        long oldColumnSize = oldColumn.getColumnSize() == null ? 0 : oldColumn.getColumnSize();
+        if (newColumnSize > oldColumnSize) {
+            columnChangeTypeList.add(OptType.COLUMN_LENGTH_LARGER.getType());
+        } else if (newColumnSize < oldColumnSize) {
+            columnChangeTypeList.add(OptType.COLUMN_LENGTH_SMALLER.getType());
         }
         //字段精度变更
-        if (newColumn.getNumberScale() != oldColumn.getNumberScale()) {
-            columnChangeTypeList.add(OptType.COLUMN_SCALE_CHANGE.getType());
+        long newNumberScale = newColumn.getNumberScale() == null ? 0 : newColumn.getNumberScale();
+        long oldNumberScale = oldColumn.getNumberScale() == null ? 0 : oldColumn.getNumberScale();
+        if (newNumberScale > oldNumberScale) {
+            columnChangeTypeList.add(OptType.COLUMN_SCALE_LARGER.getType());
+        } else if (newNumberScale < oldNumberScale) {
+            columnChangeTypeList.add(OptType.COLUMN_SCALE_SMALLER.getType());
         }
         //字段备注变更
         if (!newColumn.getRemark().equals(oldColumn.getRemark())) {
@@ -211,10 +228,10 @@ public class DbOptionServiceImpl implements IDbOptionService {
 
     /**
      * 完成操作记录
-     * @param optId
+     * @param optId .
      */
     public void finishOption(Integer optId) {
-        //TODO 判断当前步骤是否完成，需要新建步骤配置表
+        //TODO 流程判断，当前步骤是否完成，需要新建步骤配置表
         OptionVo option = dbOptionDao.getOptionById(optId);
 
         //将opt表数据更新至db表
@@ -225,6 +242,7 @@ public class DbOptionServiceImpl implements IDbOptionService {
             dbOptionDao.insertOptIntoDbIndex(optId, OptType.ADD_INDEX.getType());
         } else if (OptType.EDIT_TABLE.getType().equals(option.getOptType())) {
             //表结构更新
+            dbOptionDao.updateOptIntoDbTable(optId, OptType.EDIT_TABLE.getType());
             dbOptionDao.insertOptIntoDbColumn(optId, OptType.ADD_COLUMN.getType());
             dbOptionDao.updateOptIntoDbColumn(optId, OptType.EDIT_COLUMN.getType());
             dbOptionDao.delDbColumnFromOpt(optId, OptType.DEL_COLUMN.getType());
@@ -241,8 +259,8 @@ public class DbOptionServiceImpl implements IDbOptionService {
 
     /**
      * 获取变更记录 .
-     * @param cond
-     * @return
+     * @param cond .
+     * @return .
      */
     public Page<OptionVo> getOption(OptionQueryCond cond) {
         Page page = new Page(cond.getCurrentPage(), cond.getSize());
@@ -251,28 +269,116 @@ public class DbOptionServiceImpl implements IDbOptionService {
 
     /**
      * 根据单号查询变更记录 .
-     * @param optId
-     * @return
+     * @param optId .
+     * @return .
      */
     public OptionVo getOptionById(String optId) {
         OptionVo vo = dbOptionDao.getOptionById(Integer.valueOf(optId));
         if (vo != null) {
             vo.setColumnList(dbOptionDao.getColumnListById(Integer.valueOf(optId)));
-            vo.setIndexList(dbOptionDao.getIndexListById(Integer.valueOf(optId)));
+
+            List<IndexVo> indexList = dbOptionDao.getIndexListById(Integer.valueOf(optId));
+            for (IndexVo indexVo : indexList) {
+                String columnName = indexVo.getColumnName();
+                List<String> columnNameList = new ArrayList<>();
+                if (columnName.indexOf(",") > 0) {
+                    columnNameList = Arrays.asList(columnName.split(","));
+                } else {
+                    columnNameList.add(columnName);
+                }
+                indexVo.setColumnNameList(columnNameList);
+            }
+            vo.setIndexList(indexList);
         }
         return vo;
     }
 
     /**
      * 判断表是否有待处理的变更记录 .
-     * @param cond
-     * @return
+     * @param cond .
+     * @return .
      */
     public boolean isOptionInProc(OptionQueryCond cond) {
         Integer count = dbOptionDao.getOptionExist(cond, getFinishStep());
-        if (count > 0) {
-            return true;
+        return count > 0;
+    }
+
+    /**
+     * 根据表和数据库查询变更记录
+     * @param cond .
+     * @return .
+     */
+    public Page<OptionVo> getOptionByTableAndSchema(OptionQueryCond cond) {
+        int currentPage = cond.getCurrentPage() == null ? 1 : cond.getCurrentPage();
+        int size = cond.getSize() == null ? 100 : cond.getSize();
+        Page page = new Page(currentPage, size);
+        return dbOptionDao.getOptionByTableAndSchema(page, cond, getFinishStep());
+    }
+
+    /**
+     * 变更记录sql导出 .
+     * @param optId .
+     * @return .
+     */
+    public String exportApplicationForm(String optId) {
+        StringBuilder sql = new StringBuilder();
+
+        OptionVo option = getOptionById(optId);
+
+        String optType = option.getOptType();
+        if (OptType.CREATE_TABLE.getType().equals(optType)) {       //创建表
+            sql.append(SqlUtil.buildCreateTableSql(option.getTableName(), option.getRemark(),
+                    option.getColumnList(), option.getIndexList()));
+        } else if (OptType.DEL_TABLE.getType().equals(optType)) {   //删除表
+            sql.append(SqlUtil.buildDelTableSql(option.getTableName(), 1));
+        } else if (OptType.EDIT_TABLE.getType().equals(optType)) {  //编辑表
+            //表备注修改
+            sql.append(SqlUtil.buildUpdateTableRemarkSql(option.getTableName(), option.getRemark()));
+
+            //字段变更
+            List<ColumnVo> columnList = option.getColumnList();
+            for (ColumnVo column : columnList) {
+                if (OptType.ADD_COLUMN.getType().equals(column.getOptType())) {         //新增字段
+                    sql.append(SqlUtil.buildAddColumnSql(column));
+                } else if (OptType.DEL_COLUMN.getType().equals(column.getOptType())) {  //删除字段
+                    sql.append(SqlUtil.buildDelColumnSql(column));
+                } else if (OptType.EDIT_COLUMN.getType().equals(column.getOptType())) { //编辑字段
+                    //查询字段变更情况
+                    List<ColumnAlter> columnAlterList = dbOptionDao.getColumnAlter(optId);
+                    Map<String, String> columnAlterMap = new HashMap<>();
+                    for (ColumnAlter columnAlter : columnAlterList) {
+                        columnAlterMap.put(columnAlter.getColumnId(), columnAlter.getOptType());
+                    }
+
+                    //根据字段变更情况生成sql
+                    String columnId = column.getColumnId();
+                    List<String> optTypes = Arrays.asList(columnAlterMap.get(columnId).split(","));
+                    String hasSql = SqlUtil.isColumnBuildSql(column, optTypes);
+                    if (StringUtils.isEmpty(hasSql)) {      //当前字段的变更类型支持导出sql
+                        sql.append(SqlUtil.buildAddOrEditColumnSql(column));
+                    } else {
+                        sql.append(hasSql);
+                    }
+                }
+            }
+
+            //索引变更
+            List<IndexVo> indexList = option.getIndexList();
+            //遍历两次，将删除索引的sql放在新增索引前
+            for (IndexVo index : indexList) {
+                index.setTableName(option.getTableName());
+                if (OptType.DEL_INDEX.getType().equals(index.getOptType())) {
+                    sql.append(SqlUtil.buildDelIndexSql(index));
+                }
+            }
+            for (IndexVo index : indexList) {
+                index.setTableName(option.getTableName());
+                if (OptType.ADD_INDEX.getType().equals(index.getOptType())) {
+                    sql.append(SqlUtil.buildAddIndexSql(index));
+                }
+            }
         }
-        return false;
+
+        return SqlUtil.buildSqlTemplate(sql.toString(), option);
     }
 }

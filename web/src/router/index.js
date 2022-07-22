@@ -35,22 +35,6 @@ const routes = [
         ]
     },
     {
-        path: '/constTable',
-        name: 'constTable',
-        icon: 'List',
-        meta: {
-            nav: '常量表',
-        },
-        component: home,
-        children: [
-            {
-                path: '/constTable',
-                hidden: true,
-                component: () => import('@/views/constTable.vue'),
-            }
-        ]
-    },
-    {
         path: '/optionRecord',
         name: 'optionRecord',
         icon: 'Notebook',
@@ -63,6 +47,22 @@ const routes = [
                 path: '/optionRecord',
                 hidden: true,
                 component: () => import('@/views/optionRecord.vue'),
+            }
+        ]
+    },
+    {
+        path: '/constTable',
+        name: 'constTable',
+        icon: 'List',
+        meta: {
+            nav: '常量表',
+        },
+        component: home,
+        children: [
+            {
+                path: '/constTable',
+                hidden: true,
+                component: () => import('@/views/constTable.vue'),
             }
         ]
     },

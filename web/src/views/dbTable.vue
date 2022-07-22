@@ -83,28 +83,76 @@
         <el-table-column
             label="操作"
             fixed="right"
-            align="center"
-            :width="105">
+            align="center">
           <template #default="scope">
             <el-button type="primary" icon="Edit" circle @click="showEditTable(scope.row)"></el-button>
             <el-button type="danger" icon="Delete" circle @click="showDelTable(scope.row)"></el-button>
+            <el-dropdown trigger="click" style="padding-left: 12px;">
+              <el-button type="info" icon="MoreFilled" circle></el-button>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item icon="View" @click="showTableLog(scope.row)">变更记录</el-dropdown-item>
+                  <el-dropdown-item icon="Download" @click="exportTable(scope.row)">导出</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
           </template>
         </el-table-column>
       </el-table>
-	  <el-pagination 
-			style="padding-top: 10px; float: right;"
-			:total="tableTotal"
-			:page-size="pageSize"
-			@size-change="handleSizeChange"
-			@current-change="handleCurrentChange"
-			:current-page="currentPage"
-			layout="total,sizes,prev,pager,next,jumper">
-		</el-pagination>
+      <el-pagination
+        style="padding-top: 10px; float: right;"
+        :total="tableTotal"
+        :page-size="pageSize"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="currentPage"
+        layout="total,sizes,prev,pager,next,jumper">
+      </el-pagination>
     </div>
 
     <dbConfDlg v-model="showSetDbConfDlg" ref="dbConfDlg" @on-close="showSetDbConfDlg=false"></dbConfDlg>
 	  <dbTableDetailDlg v-model="showTableDetailDlg" ref="dbTableDetailDlg" @on-close="showTableDetailDlg=false"></dbTableDetailDlg>
     <applicationFormDlg v-model="showApplicationDlg" ref="applicationFormDlg" @on-close="closeApplicationDlg()"></applicationFormDlg>
+
+    <el-dialog v-model="showTableLogDlg"
+               title="变更记录"
+               width="1000px">
+      <el-table
+          :data="tableLogData"
+          height="50vh"
+          style="width: 100%; "
+          @row-click="showOption">
+        <el-table-column
+            type="index"
+            label="序号"
+            align="center"
+            :width="80">
+        </el-table-column>
+        <el-table-column
+            prop="optId"
+            label="单号"
+            align="center"
+            :width="100">
+        </el-table-column>
+        <el-table-column
+            prop="createBy"
+            label="变更人"
+            align="center"
+            :width="100">
+        </el-table-column>
+        <el-table-column
+            prop="createTime"
+            label="变更时间"
+            align="center"
+            :width="180">
+        </el-table-column>
+        <el-table-column
+            prop="description"
+            label="描述"
+            align="center">
+        </el-table-column>
+      </el-table>
+    </el-dialog>
   </div>
 </template>
 
@@ -115,6 +163,8 @@ import applicationFormDlg from "@/views/applicationFormDlg";
 import dbConf from "@/api/dbConf";
 import dbManager from "@/api/dbManager";
 import dbOption from "@/api/dbOption";
+import dbConstTable from "@/api/dbConstTable";
+import {doExport} from "@/utils/export";
 
 export default {
   components:{
@@ -140,6 +190,11 @@ export default {
       showSetDbConfDlg: false,
 	    showTableDetailDlg: false,
       showApplicationDlg: false,
+
+      showTableLogDlg: false,
+
+      tableLogData: [],
+
     }
   },
 
@@ -160,7 +215,7 @@ export default {
       this.currentPage = currentPage;
       this.getDbTable();
     },
-	
+
     showTableDetail (row, event, column) {
       if ('操作' != event.label) {
         let table = {};
@@ -215,6 +270,15 @@ export default {
       }
     },
 
+    showOption (row, event, column) {
+      let form = {};
+      form.title = "变更记录单: " + row.optId;
+      form.optId = row.optId;
+      form.optType = "show_table";
+      this.$refs.applicationFormDlg.showApplicationForm(form);
+      this.showApplicationDlg = true;
+    },
+
     async closeApplicationDlg() {
       await this.getDbTable();
       this.showApplicationDlg = false;
@@ -235,8 +299,27 @@ export default {
         this.tableData = data.records;
         this.tableTotal = data.total;
       }
-    }
-	
+    },
+
+    async showTableLog(row) {
+      let param = {};
+      param.tableName = row.tableName;
+      param.tableSchema = row.tableSchema;
+      const { code, data, msg } = await dbOption.getOptionByTableAndSchema(param);
+      if ('200' == code) {
+        this.tableLogData = data.records;
+      }
+      this.showTableLogDlg = true;
+    },
+
+    async exportTable(row) {
+      const { code, data, msg } = await dbManager.exportTableSql(row.tableId);
+      if ('200' != code) {
+        this.$message.error(msg);
+        return;
+      }
+      doExport(data, row.tableName + `.sql`);
+    },
   },
   
   created() {

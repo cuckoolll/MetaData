@@ -190,7 +190,7 @@ public class DbColumnServiceImpl extends ServiceImpl<DbColumnDao, DbColumn> impl
      * @param schema
      * @return
      */
-    public Integer getMaxSortByTable(String tableName, String schema) {
+    public synchronized Integer getMaxSortByTable(String tableName, String schema) {
         return getBaseMapper().getMaxSortByTable(tableName, schema);
     }
 }

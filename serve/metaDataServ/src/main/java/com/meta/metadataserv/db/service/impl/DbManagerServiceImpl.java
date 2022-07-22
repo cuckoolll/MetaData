@@ -5,12 +5,11 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.meta.metadataserv.db.dao.DbConfDao;
 import com.meta.metadataserv.db.dao.DbManagerDao;
 import com.meta.metadataserv.db.service.*;
-import com.meta.metadataserv.domain.model.DbColumn;
-import com.meta.metadataserv.domain.model.DbConf;
-import com.meta.metadataserv.domain.model.DbIndex;
-import com.meta.metadataserv.domain.model.DbTable;
+import com.meta.metadataserv.domain.model.*;
 import com.meta.metadataserv.domain.query.TableQueryCond;
 import com.meta.metadataserv.enums.DbType;
+import com.meta.metadataserv.enums.Procedure;
+import com.meta.metadataserv.utils.SqlUtil;
 import com.meta.metadataserv.utils.UuidUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -20,6 +19,7 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -111,4 +111,20 @@ public class DbManagerServiceImpl extends ServiceImpl<DbManagerDao, DbConf> impl
         dbService.updateTime(dbConf.getDbSchema());
     }
 
+    /**
+     * 导出创建表sql .
+     * @param tableId
+     * @return
+     */
+    public String exportTableSql(String tableId) {
+        DbTable table = dbTableService.getById(tableId);
+        String tableName = table.getTableName();
+        String tableSchema = table.getTableSchema();
+        String remark = table.getRemark();
+
+        List<DbColumn> columnList = dbColumnService.getDbColumn(tableName, tableSchema);
+        List<DbIndex> indexList = dbIndexService.getDbIndex(tableName, tableSchema);
+
+        return SqlUtil.buildCreateTableSql(tableName, remark, ColumnVo.listOf(columnList), IndexVo.listOf(indexList));
+    }
 }

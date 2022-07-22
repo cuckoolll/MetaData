@@ -21,11 +21,13 @@ public enum OptType {
     DEL_INDEX("删除索引", "del_index"),
 
     //字段编辑类型
-    COLUMN_NAME_CHANGE("字段名称变更", "column_name_change"),
+//    COLUMN_NAME_CHANGE("字段名称变更", "column_name_change"),
     COLUMN_TYPE_CHANGE("字段类型变更", "column_type_change"),
     COLUMN_DEFAULT_CHANGE("字段默认值变更", "column_default_change"),
-    COLUMN_LENGTH_CHANGE("字段长度变更", "column_length_change"),
-    COLUMN_SCALE_CHANGE("字段精度变更", "column_scale_change"),
+    COLUMN_LENGTH_LARGER("字段长度增大", "column_length_larger"),
+    COLUMN_LENGTH_SMALLER("字段长度缩小", "column_length_smaller"),
+    COLUMN_SCALE_LARGER("字段精度增大", "column_scale_larger"),
+    COLUMN_SCALE_SMALLER("字段精度缩小", "column_scale_smaller"),
     COLUMN_REMARK_CHANGE("字段备注变更", "column_remark_change"),
 
     //索引编辑类型

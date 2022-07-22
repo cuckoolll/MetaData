@@ -2,17 +2,17 @@
   <div>
     <div style="background: #FAFAFA;align-content: center">
       <el-form :model="queryForm" inline="true" style="padding-left: 10px;padding-top: 20px">
-        <el-form-item label="操作类型">
-          <el-select v-model="queryForm.optType" clearable style="width: 150px;">
-            <el-option
-                v-for="item in optTypeSelect"
-                :key="item.id"
-                :label="item.text"
-                :value="item.id"
-            >
-            </el-option>
-          </el-select>
-        </el-form-item>
+<!--        <el-form-item label="操作类型">-->
+<!--          <el-select v-model="queryForm.optType" clearable style="width: 150px;">-->
+<!--            <el-option-->
+<!--                v-for="item in optTypeSelect"-->
+<!--                :key="item.id"-->
+<!--                :label="item.text"-->
+<!--                :value="item.id"-->
+<!--            >-->
+<!--            </el-option>-->
+<!--          </el-select>-->
+<!--        </el-form-item>-->
         <el-form-item label="表名">
           <el-input v-model="queryForm.tableName" type="text" style="width: 150px;"></el-input>
         </el-form-item>

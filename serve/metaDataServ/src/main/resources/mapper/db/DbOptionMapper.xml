@@ -106,10 +106,10 @@
 
     <insert id="insertColumnAlter">
         insert into t_metadata_opt_column_alter
-        (column_id,opt_type)
+        (column_id,opt_type,opt_id)
         values
         <foreach collection="alterList" item="item" index="index" separator=",">
-            (#{item.columnId}, #{item.optType})
+            (#{item.columnId}, #{item.optType}, #{item.optId})
         </foreach>
     </insert>
 
@@ -186,6 +186,13 @@
            and b.opt_type = #{optType}
     </update>
 
+    <update id="updateOptIntoDbTable">
+        update t_metadata_db_table a join t_metadata_opt b on a.table_id = b.table_id
+           set a.remark = b.remark
+         where b.opt_id = #{optId}
+           and b.opt_type = #{optType}
+    </update>
+
     <delete id="delDbTableFromOpt">
         delete from t_metadata_db_table
         where table_id in (select a.table_id
@@ -235,7 +242,22 @@
     </select>
 
     <select id="getIndexListById" resultType="com.meta.metadataserv.domain.model.IndexVo">
-        select * from t_metadata_opt_index where opt_id = #{optId}
+        select
+            a.opt_id,
+            a.opt_type,
+            a.index_id,
+            a.index_name,
+            group_concat(distinct b.column_name) column_name,
+            a.is_unique
+        from t_metadata_opt_index a,
+             t_metadata_opt_index b
+        where a.opt_id = #{optId}
+        and a.opt_id = b.opt_id
+        and a.index_name = b.index_name
+        and b.table_name = a.table_name
+        and a.table_schema = b.table_schema
+        group by a.index_name, a.opt_type
+        order by a.index_name, a.opt_type
     </select>
 
     <select id="getOptionExist" resultType="java.lang.Integer">
@@ -243,6 +265,22 @@
          from t_metadata_opt
          where table_name = #{cond.tableName}
          and table_schema = #{cond.tableSchema}
-         and step &lt; #{step};
+         and step &lt; #{step}
+    </select>
+
+    <select id="getOptionByTableAndSchema" resultType="com.meta.metadataserv.domain.model.OptionVo">
+        select * from t_metadata_opt
+        where table_name = #{cond.tableName}
+         and table_schema = #{cond.tableSchema}
+         and step = #{step}
+         order by opt_id desc
+    </select>
+
+    <select id="getColumnAlter" resultType="com.meta.metadataserv.domain.model.ColumnAlter">
+        select a.column_id columnId,
+               group_concat(a.opt_type) optType
+        from t_metadata_opt_column_alter a
+       where a.opt_id = #{optId}
+         group by a.column_id
     </select>
 </mapper>

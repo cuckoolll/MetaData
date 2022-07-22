@@ -8,38 +8,28 @@ import java.io.ObjectOutputStream;
 public class TransferUtil {
     public static Object byteToObject( byte[] bytes) throws Exception {
         java.lang.Object obj;
-        try {
-            //bytearray to object
-            ByteArrayInputStream bi = new ByteArrayInputStream(bytes);
-            ObjectInputStream oi = new ObjectInputStream(bi);
+        //bytearray to object
+        ByteArrayInputStream bi = new ByteArrayInputStream(bytes);
+        ObjectInputStream oi = new ObjectInputStream(bi);
 
-            obj = oi.readObject();
+        obj = oi.readObject();
 
-            bi.close();
-            oi.close();
-        }
-        catch(Exception ae) {
-            throw ae;
-        }
+        bi.close();
+        oi.close();
         return obj;
     }
 
 
     public static byte[] objectToByte(Object obj) throws Exception {
         byte[] bytes;
-        try {
-            ByteArrayOutputStream bo = new ByteArrayOutputStream();
-            ObjectOutputStream oo = new ObjectOutputStream(bo);
-            oo.writeObject(obj);
+        ByteArrayOutputStream bo = new ByteArrayOutputStream();
+        ObjectOutputStream oo = new ObjectOutputStream(bo);
+        oo.writeObject(obj);
 
-            bytes = bo.toByteArray();
+        bytes = bo.toByteArray();
 
-            bo.close();
-            oo.close();
-        }
-        catch(Exception ae) {
-            throw ae;
-        }
+        bo.close();
+        oo.close();
         return(bytes);
     }
 }
