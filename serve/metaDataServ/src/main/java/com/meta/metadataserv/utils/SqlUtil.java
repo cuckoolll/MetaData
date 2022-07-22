@@ -101,15 +101,16 @@ public class SqlUtil {
 
     /**
      * 生成删除表sql .
+     * @param tableSchema 数据库名 .
      * @param tableName 表名 .
      * @param isBackup 是否以备份方式删除，0：否, 1：是
      * @return .
      */
-    public static String buildDelTableSql(String tableName, int isBackup) {
+    public static String buildDelTableSql(String tableSchema, String tableName, int isBackup) {
         StringBuilder sql = new StringBuilder();
 
         if (1 == isBackup) {
-            sql.append("CALL ").append(Procedure.buildSql(Procedure.PR_DEL_TABLE, new Object[]{tableName})).append(";");
+            sql.append("CALL ").append(Procedure.buildSql(Procedure.PR_DEL_TABLE, new Object[]{tableSchema, tableName})).append(";");
         } else {
             sql.append("DROP TABLE IF EXISTS ").append(tableName).append(";");
         }
@@ -119,12 +120,13 @@ public class SqlUtil {
 
     /**
      * 修改表备注 .
+     * @param tableSchema 数据库名 .
      * @param tableName 表名 .
      * @param remark 表备注 .
      * @return .
      */
-    public static String buildUpdateTableRemarkSql(String tableName, String remark) {
-        return "CALL " + Procedure.buildSql(Procedure.PR_EDIT_TABLE_REMARK, new Object[]{tableName, remark}) + ";\n";
+    public static String buildUpdateTableRemarkSql(String tableSchema, String tableName, String remark) {
+        return "CALL " + Procedure.buildSql(Procedure.PR_EDIT_TABLE_REMARK, new Object[]{tableSchema, tableName, remark}) + ";\n";
     }
 
     /**
@@ -133,7 +135,7 @@ public class SqlUtil {
      * @return .
      */
     public static String buildAddColumnSql(ColumnVo column) {
-        return "CALL " + Procedure.buildSql(Procedure.PR_ADD_COLUMN, new Object[]{column.getTableName(), column.getColumnName(),
+        return "CALL " + Procedure.buildSql(Procedure.PR_ADD_COLUMN, new Object[]{column.getTableSchema(), column.getTableName(), column.getColumnName(),
             column.getDataType(), column.getColumnSizeByDataType(), column.getNumberScale(), column.getColumnDefault(), column.getRemark()}) + ";\n";
     }
 
@@ -143,7 +145,7 @@ public class SqlUtil {
      * @return .
      */
     public static String buildDelColumnSql(ColumnVo column) {
-        return "CALL " + Procedure.buildSql(Procedure.PR_DEL_COLUMN, new Object[]{column.getTableName(), column.getColumnName()}) + ";\n";
+        return "CALL " + Procedure.buildSql(Procedure.PR_DEL_COLUMN, new Object[]{column.getTableSchema(), column.getTableName(), column.getColumnName()}) + ";\n";
     }
 
     /**
@@ -152,7 +154,7 @@ public class SqlUtil {
      * @return .
      */
     public static String buildAddOrEditColumnSql(ColumnVo column) {
-        return "CALL " + Procedure.buildSql(Procedure.PR_ADD_OR_EDIT_COLUMN, new Object[]{column.getTableName(), column.getColumnName(),
+        return "CALL " + Procedure.buildSql(Procedure.PR_ADD_OR_EDIT_COLUMN, new Object[]{column.getTableSchema(), column.getTableName(), column.getColumnName(),
                 column.getDataType(), column.getColumnSizeByDataType(), column.getNumberScale(), column.getColumnDefault(), column.getRemark()}) + ";\n";
     }
 
@@ -175,7 +177,7 @@ public class SqlUtil {
      * @return .
      */
     public static String buildAddIndexSql(IndexVo index) {
-        return "CALL " + Procedure.buildSql(Procedure.PR_ADD_INDEX, new Object[]{index.getTableName(),
+        return "CALL " + Procedure.buildSql(Procedure.PR_ADD_INDEX, new Object[]{index.getTableSchema(), index.getTableName(),
                 index.getIndexName(), index.getColumnName(), index.getIsUnique()}) + ";\n";
     }
 
@@ -185,6 +187,6 @@ public class SqlUtil {
      * @return .
      */
     public static String buildDelIndexSql(IndexVo index) {
-        return "CALL " + Procedure.buildSql(Procedure.PR_DEL_INDEX, new Object[]{index.getTableName(), index.getIndexName()}) + ";\n";
+        return "CALL " + Procedure.buildSql(Procedure.PR_DEL_INDEX, new Object[]{index.getTableSchema(), index.getTableName(), index.getIndexName()}) + ";\n";
     }
 }

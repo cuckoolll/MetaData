@@ -13,6 +13,9 @@
 <!--            </el-option>-->
 <!--          </el-select>-->
 <!--        </el-form-item>-->
+        <el-form-item label="单号">
+          <el-input v-model="queryForm.optId" type="text" style="width: 150px;"></el-input>
+        </el-form-item>
         <el-form-item label="表名">
           <el-input v-model="queryForm.tableName" type="text" style="width: 150px;"></el-input>
         </el-form-item>

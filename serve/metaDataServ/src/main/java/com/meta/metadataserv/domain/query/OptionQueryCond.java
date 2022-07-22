@@ -15,6 +15,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OptionQueryCond extends PageVo {
+    @ApiModelProperty(value = "单号")
+    private String optId;
+
     @ApiModelProperty(value = "操作类型")
     private String optType;
 

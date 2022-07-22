@@ -219,6 +219,9 @@
 
     <select id="getOption" resultType="com.meta.metadataserv.domain.model.OptionVo">
         select * from t_metadata_opt a where 1 = 1
+        <if test="null != cond.optId and '' != cond.optId">
+            and a.opt_id = #{cond.optId}
+        </if>
         <if test="null != cond.optType and '' != cond.optType">
             and a.opt_type = #{cond.optType}
         </if>

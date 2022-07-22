@@ -604,7 +604,7 @@ export default {
         this.$message.error(msg);
         return;
       }
-      doExport(data, "变更记录单：" + this.optId + `.sql`);
+      doExport(data, "变更记录单_" + this.optId + `.sql`);
     },
 
     async getDbColumn(tableName, schema) {

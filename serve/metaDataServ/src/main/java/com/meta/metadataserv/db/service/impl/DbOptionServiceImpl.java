@@ -102,7 +102,11 @@ public class DbOptionServiceImpl implements IDbOptionService {
         List<ColumnVo> columnList = option.getColumnList();
         List<ColumnVo> columnSaveList = new ArrayList<>();
         for (ColumnVo vo : columnList) {
-            if (StringUtils.isEmpty(vo.getOptType()) && !OptType.DEL_TABLE.getType().equals(option.getOptType())) {
+            if (OptType.DEL_TABLE.getType().equals(option.getOptType())) {
+                vo.setOptType(OptType.DEL_COLUMN.getType());
+            }
+
+            if (StringUtils.isEmpty(vo.getOptType())) {
                 continue;
             }
             ColumnVo saveVo = new ColumnVo();
@@ -155,7 +159,11 @@ public class DbOptionServiceImpl implements IDbOptionService {
         List<IndexVo> indexList = option.getIndexList();
         List<IndexVo> indexSaveList = new ArrayList<>();
         for (IndexVo vo : indexList) {
-            if (StringUtils.isEmpty(vo.getOptType()) && !OptType.DEL_TABLE.getType().equals(option.getOptType())) {
+            if (OptType.DEL_TABLE.getType().equals(option.getOptType())) {
+                vo.setOptType(OptType.DEL_INDEX.getType());
+            }
+
+            if (StringUtils.isEmpty(vo.getOptType())) {
                 continue;
             }
 
@@ -330,10 +338,10 @@ public class DbOptionServiceImpl implements IDbOptionService {
             sql.append(SqlUtil.buildCreateTableSql(option.getTableName(), option.getRemark(),
                     option.getColumnList(), option.getIndexList()));
         } else if (OptType.DEL_TABLE.getType().equals(optType)) {   //删除表
-            sql.append(SqlUtil.buildDelTableSql(option.getTableName(), 1));
+            sql.append(SqlUtil.buildDelTableSql(option.getTableSchema(), option.getTableName(), 1));
         } else if (OptType.EDIT_TABLE.getType().equals(optType)) {  //编辑表
             //表备注修改
-            sql.append(SqlUtil.buildUpdateTableRemarkSql(option.getTableName(), option.getRemark()));
+            sql.append(SqlUtil.buildUpdateTableRemarkSql(option.getTableSchema(), option.getTableName(), option.getRemark()));
 
             //字段变更
             List<ColumnVo> columnList = option.getColumnList();
@@ -366,12 +374,14 @@ public class DbOptionServiceImpl implements IDbOptionService {
             List<IndexVo> indexList = option.getIndexList();
             //遍历两次，将删除索引的sql放在新增索引前
             for (IndexVo index : indexList) {
+                index.setTableSchema(option.getTableSchema());
                 index.setTableName(option.getTableName());
                 if (OptType.DEL_INDEX.getType().equals(index.getOptType())) {
                     sql.append(SqlUtil.buildDelIndexSql(index));
                 }
             }
             for (IndexVo index : indexList) {
+                index.setTableSchema(option.getTableSchema());
                 index.setTableName(option.getTableName());
                 if (OptType.ADD_INDEX.getType().equals(index.getOptType())) {
                     sql.append(SqlUtil.buildAddIndexSql(index));
