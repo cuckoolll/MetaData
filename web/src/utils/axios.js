@@ -8,7 +8,7 @@ import request from "./http";
  */
 export function post(url, data = {}) {
     return new Promise((resolve, reject) => {
-        request({ headers: {'Content-Type': 'application/json'}, method: 'post', url: url, data: data})
+        request({ method: 'post', url: url, data: data})
             .then((response) => {
                 resolve(response.data);
             })

@@ -114,7 +114,13 @@
     </insert>
 
     <select id="getOptionById" resultType="com.meta.metadataserv.domain.model.OptionVo">
-        select * from t_metadata_opt where opt_id = #{optId}
+        select *, b.nick_name createByName, b.nick_name targetName
+        from t_metadata_opt a,
+             t_metadata_user b,
+             t_metadata_user c
+        where a.create_by = b.user_id
+          and a.target = c.user_id
+          and a.opt_id = #{optId}
     </select>
 
     <insert id="insertOptIntoDbTable">
@@ -218,7 +224,12 @@
     </delete>
 
     <select id="getOption" resultType="com.meta.metadataserv.domain.model.OptionVo">
-        select * from t_metadata_opt a where 1 = 1
+        select *, b.nick_name createByName, b.nick_name targetName
+          from t_metadata_opt a,
+               t_metadata_user b,
+               t_metadata_user c
+         where a.create_by = b.user_id
+           and a.target = c.user_id
         <if test="null != cond.optId and '' != cond.optId">
             and a.opt_id = #{cond.optId}
         </if>

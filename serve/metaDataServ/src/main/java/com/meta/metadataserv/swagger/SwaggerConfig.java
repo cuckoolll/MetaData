@@ -25,7 +25,7 @@ import java.util.List;
 public class SwaggerConfig implements WebMvcConfigurer {
 
     @Bean
-    public Docket bdmpSys() {
+    public Docket db() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .groupName("数据库管理api")
                 .apiInfo(apiInfo())
@@ -33,6 +33,21 @@ public class SwaggerConfig implements WebMvcConfigurer {
                 .forCodeGeneration(true)
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.meta.metadataserv.db"))
+                .paths(PathSelectors.any())
+                .build()
+                .securitySchemes(securitySchemes())
+                .securityContexts(securityContexts());
+    }
+
+    @Bean
+    public Docket auth() {
+        return new Docket(DocumentationType.SWAGGER_2)
+                .groupName("登录认证api")
+                .apiInfo(apiInfo())
+                .useDefaultResponseMessages(false)
+                .forCodeGeneration(true)
+                .select()
+                .apis(RequestHandlerSelectors.basePackage("com.meta.metadataserv.auth"))
                 .paths(PathSelectors.any())
                 .build()
                 .securitySchemes(securitySchemes())

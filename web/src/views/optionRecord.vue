@@ -86,7 +86,7 @@
             :width="100">
         </el-table-column>
         <el-table-column
-            prop="target"
+            prop="targetName"
             label="当前处理人"
             align="center"
             :width="100">
@@ -97,7 +97,7 @@
             align="center">
         </el-table-column>
         <el-table-column
-            prop="createBy"
+            prop="createByName"
             label="创建人"
             align="center"
             :width="100">

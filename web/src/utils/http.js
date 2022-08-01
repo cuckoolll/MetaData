@@ -26,12 +26,10 @@ const service = axios.create({
 //请求拦截
 service.interceptors.request.use(
   (config) => {
-    let token = localStorage.getItem("eleToken") || ""; //获取token
+    let token = localStorage.getItem("access_token") || ""; //获取token
     if (token) {
       // //设置统一请求头
-      config.headers.common = {
-        Authorization: "Bearer " + token,
-      };
+      config.headers.Authorization = "Bearer " + token;
     }
     return config;
   },
@@ -43,7 +41,7 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   (response) => {
     if (response.data.code == "A0230") {
-      localStorage.removeItem("eleToken");
+      localStorage.removeItem("access_token");
       router.push("/login");
     }
     //结束加载动画
@@ -51,21 +49,17 @@ service.interceptors.response.use(
     return response;
   },
   (error) => {
-    // //错误提醒
-   // endLoading();
-    //获取错误状态码
-    const { status } = error.response;
-    if (status == 201) {
-      // debugger
-      Message.error("token失效，请重新登录");
-      //清除token
-      localStorage.removeItem("eleToken");
-      //跳转到登录页面
-      router.push("/login");
-    }else {
-        Message.error(error);
-    }
-    return Promise.reject(error);
+   //  // //错误提醒
+   // // endLoading();
+   //  //获取错误状态码
+   //  const { status } = error.response;
+   //  if (status != 200) {
+   //    //清除token
+   //    localStorage.removeItem("access_token");
+   //    //跳转到登录页面
+   //    router.push("/login");
+   //  }
+   //  return Promise.reject(error);
   }
 );
 export default service;

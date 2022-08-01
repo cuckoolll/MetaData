@@ -11,9 +11,8 @@ module.exports = defineConfig({
     proxy: {
       '/metaData': {
         target: 'http://localhost:9080', // 配置好的后端接口地址
-        // 允许跨域
-        changeOrigin: true,
-      }
+        changeOrigin: true,   // 允许跨域
+      },
     }
   },
 })

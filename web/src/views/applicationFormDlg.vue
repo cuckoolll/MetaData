@@ -401,6 +401,8 @@ export default {
       optType: '',
       optId: '',
 
+      userInfo: JSON.parse(localStorage.getItem("userInfo")),
+
       applicationForm: {},
       rules: {
         tableSchema: [{ required: true, message: '请选择数据库名称', trigger: 'blur' }],
@@ -574,6 +576,9 @@ export default {
           let option = this.applicationForm;
           option.columnList = this.columnsData;
           option.indexList = this.indexData;
+          option.createBy = this.userInfo.userId;
+          option.updateBy = this.userInfo.userId;
+          option.target = this.userInfo.userId;
           const { code, data, msg } = await dbOption.createOption(option);
           if ('200' == code) {
             let optId = data;

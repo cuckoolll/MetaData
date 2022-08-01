@@ -41,8 +41,11 @@ public class OptionVo {
     @ApiModelProperty("说明")
     private String description;
 
-    @ApiModelProperty("处理人")
+    @ApiModelProperty("处理人id")
     private String target;
+
+    @ApiModelProperty("处理人")
+    private String targetName;
 
     @ApiModelProperty("字段信息")
     private List<ColumnVo> columnList;
@@ -53,16 +56,22 @@ public class OptionVo {
     @ApiModelProperty("步骤数")
     private Integer step;
 
-    @ApiModelProperty("最后操作人")
+    @ApiModelProperty("最后操作人id")
     private String updateBy;
+
+    @ApiModelProperty("最后操作人")
+    private String updateByName;
 
     @ApiModelProperty(value = "最后变更时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Shanghai")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss", iso = DateTimeFormat.ISO.DATE_TIME)
     private Date updateTime;
 
-    @ApiModelProperty("创建人")
+    @ApiModelProperty("创建人id")
     private String createBy;
+
+    @ApiModelProperty("创建人")
+    private String createByName;
 
     @ApiModelProperty(value = "创建时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Shanghai")

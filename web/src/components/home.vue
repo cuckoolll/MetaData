@@ -1,7 +1,8 @@
 <template>
     <el-container >
 		<el-header style="background: #C6E2FF;" height="8vh" >
-			<span style="line-height: 8vh">MetaData</span>
+			<span style="line-height: 8vh; font-size: 18px;">MetaData</span>
+      <user></user>
 		</el-header>
 
 		<el-container>
@@ -18,12 +19,14 @@
 </template>
 <script>
 import navbar from "@/components/navbar";
+import user from "@/components/user";
 import dbConfDlg from "@/views/dbConfDlg";
 
 export default {
   components: {
     navbar,
-	dbConfDlg
+	  dbConfDlg,
+    user
   },
 
   data() {

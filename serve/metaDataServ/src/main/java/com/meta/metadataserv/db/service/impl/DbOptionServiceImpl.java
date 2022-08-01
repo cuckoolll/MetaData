@@ -68,9 +68,9 @@ public class DbOptionServiceImpl implements IDbOptionService {
         optId++;
         option.setOptId(optId);
         option.setStep(1);
-        option.setTarget("sys");
-        option.setUpdateBy("sys");
-        option.setCreateBy("sys");
+//        option.setTarget("sys");
+//        option.setUpdateBy("sys");
+//        option.setCreateBy("sys");
         if (StringUtils.isEmpty(option.getTableId())) {
             option.setTableId(UuidUtil.getUuid());
         }
