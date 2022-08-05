@@ -16,7 +16,9 @@
              table_schema,
              remark,
              target,
-             step,
+             step_id,
+             step_version,
+             status,
              update_time,
              update_by,
              create_time,
@@ -32,6 +34,8 @@
              #{option.remark},
              #{option.target},
              #{option.step},
+             #{option.stepVersion},
+             0,
              now(),
              #{option.updateBy},
              now(),
@@ -114,7 +118,7 @@
     </insert>
 
     <select id="getOptionById" resultType="com.meta.metadataserv.domain.model.OptionVo">
-        select *, b.nick_name createByName, b.nick_name targetName
+        select *, a.step_id step, b.nick_name createByName, b.nick_name targetName
         from t_metadata_opt a,
              t_metadata_user b,
              t_metadata_user c
@@ -224,7 +228,7 @@
     </delete>
 
     <select id="getOption" resultType="com.meta.metadataserv.domain.model.OptionVo">
-        select *, b.nick_name createByName, b.nick_name targetName
+        select *, a.step_id step, b.nick_name createByName, c.nick_name targetName
           from t_metadata_opt a,
                t_metadata_user b,
                t_metadata_user c
@@ -240,13 +244,13 @@
             and a.table_name like concat('%', #{cond.tableName}, '%')
         </if>
         <if test="null != cond.target and '' != cond.target">
-            and a.target like concat('%', #{cond.target}, '%')
+            and c.nick_name like concat('%', #{cond.target}, '%')
         </if>
         <if test="cond.status == 0">
-            and a.step &lt; #{step}
+            and a.status = 0
         </if>
         <if test="cond.status == 1">
-            and a.step = #{step}
+            and a.status = 1
         </if>
         order by opt_id desc
     </select>
@@ -279,14 +283,17 @@
          from t_metadata_opt
          where table_name = #{cond.tableName}
          and table_schema = #{cond.tableSchema}
-         and step &lt; #{step}
+         and status = 0
     </select>
 
     <select id="getOptionByTableAndSchema" resultType="com.meta.metadataserv.domain.model.OptionVo">
-        select * from t_metadata_opt
-        where table_name = #{cond.tableName}
+        select *, b.nick_name createByName
+        from t_metadata_opt a,
+             t_metadata_user b
+        where a.create_by = b.user_id
+         and table_name = #{cond.tableName}
          and table_schema = #{cond.tableSchema}
-         and step = #{step}
+         and status = 1
          order by opt_id desc
     </select>
 
@@ -297,4 +304,17 @@
        where a.opt_id = #{optId}
          group by a.column_id
     </select>
+
+    <update id="updateStep">
+        update t_metadata_opt
+        set step_id = #{step},
+            step_version = #{stepVersion},
+            target = #{userId},
+            update_time = now()
+        where opt_id = #{optId}
+    </update>
+
+    <update id="finishStep">
+        update t_metadata_opt set status = 1 where opt_id = #{optId}
+    </update>
 </mapper>

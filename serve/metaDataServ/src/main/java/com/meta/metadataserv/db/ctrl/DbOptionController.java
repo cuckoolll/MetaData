@@ -36,9 +36,9 @@ public class DbOptionController {
 
     @ApiOperation("完成操作记录")
     @PostMapping("/finishOption")
-    public RespResult finishOption(@RequestParam Integer optId) {
+    public RespResult finishOption(@RequestParam Integer optId, @RequestParam Integer step, @RequestParam String userId) {
         try {
-            dbOptionService.finishOption(optId);
+            dbOptionService.finishOption(optId, step, userId);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return RespResult.error(e.getMessage());

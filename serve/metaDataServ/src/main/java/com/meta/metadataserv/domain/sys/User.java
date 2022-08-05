@@ -1,4 +1,4 @@
-package com.meta.metadataserv.auth.domain.model;
+package com.meta.metadataserv.domain.sys;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -63,9 +63,9 @@ public class User implements Serializable {
     @TableField("email")
     private String email;
 
-    @ApiModelProperty(value = "角色")
-    @TableField("roles")
-    private String roles;
+    @ApiModelProperty(value = "角色id")
+    @TableField("role_id")
+    private String roleId;
 
     @ApiModelProperty(value = "clientId")
     @TableField("client_id")

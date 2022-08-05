@@ -1,9 +1,9 @@
-package com.meta.metadataserv.auth.service;
+package com.meta.metadataserv.sys.service;
 
 
-import com.meta.metadataserv.auth.domain.model.User;
+import com.meta.metadataserv.domain.sys.User;
 
-public interface UserService {
+public interface IUserService {
 
     /**
      * 查看用户(根据username)

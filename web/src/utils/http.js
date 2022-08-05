@@ -52,14 +52,14 @@ service.interceptors.response.use(
    //  // //错误提醒
    // // endLoading();
    //  //获取错误状态码
-   //  const { status } = error.response;
-   //  if (status != 200) {
-   //    //清除token
-   //    localStorage.removeItem("access_token");
-   //    //跳转到登录页面
-   //    router.push("/login");
-   //  }
-   //  return Promise.reject(error);
+    const { status } = error.response;
+    if (status === 401 || status === 400) {
+      //清除token
+      localStorage.removeItem("access_token");
+      //跳转到登录页面
+      router.push("/login");
+    }
+    return Promise.reject(error);
   }
 );
 export default service;

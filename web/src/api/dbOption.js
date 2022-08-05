@@ -25,7 +25,7 @@ export default {
     },
 
     finishOption(param) {
-        return post(this.data().base + "/finishOption?optId=" + param);
+        return post(this.data().base + "/finishOption?optId=" + param.optId + "&step=" + param.step + "&userId=" + param.userId);
     },
 
     getTableOptTypeSelect() {

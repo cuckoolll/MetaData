@@ -1,16 +1,16 @@
-package com.meta.metadataserv.auth.service.impl;
+package com.meta.metadataserv.sys.service.impl;
 
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.meta.metadataserv.auth.dao.UserDao;
-import com.meta.metadataserv.auth.domain.model.User;
-import com.meta.metadataserv.auth.service.UserService;
+import com.meta.metadataserv.domain.sys.User;
+import com.meta.metadataserv.sys.dao.UserDao;
+import com.meta.metadataserv.sys.service.IUserService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 
 @Service(value = "myUserService")
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements IUserService {
 
     @Resource
     private UserDao userDao;

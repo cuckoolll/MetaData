@@ -53,4 +53,11 @@ public interface DbOptionDao {
     Page<OptionVo> getOptionByTableAndSchema(Page page, @Param("cond") OptionQueryCond cond, @Param("step") Integer step);
 
     List<ColumnAlter> getColumnAlter(@Param("optId") String optId);
+
+    void updateStep(@Param("optId") Integer optId,
+                    @Param("step") Integer step,
+                    @Param("stepVersion") Integer stepVersion,
+                    @Param("userId") String userId);
+
+    void finishStep(@Param("optId") Integer optId);
 }

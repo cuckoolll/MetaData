@@ -1,11 +1,10 @@
 <template>
   <div>
-    <el-button type="primary" @click="showDbCreate()">创建</el-button>
-    <!-- <el-button @click="showSetDbConf()">设置</el-button> -->
-	  <!-- <el-button type="primary" @click="getDbTable()" style="float: right;">查询</el-button> -->
+    <el-button v-if="roleContains('home_create')" id="home_create" type="primary" @click="showDbCreate()">创建</el-button>
+
     <div style="width: 100%;padding-top: 10px">
       <el-table :data="tableData"
-                height="75vh"
+                :height="tableHeight"
                 @row-click="showDbTable">
         <el-table-column
             type="index"
@@ -44,7 +43,7 @@
             <label>{{ scope.row.updateTime }}</label>
           </template>
         </el-table-column>
-        <el-table-column label="操作" align="center">
+        <el-table-column label="操作" align="center" id="home_opt" v-if="roleContains('home_opt')">
           <template #default="scope">
             <el-button type="primary" icon="Edit" circle @click="showDbEdit(scope.row)"></el-button>
             <el-button type="danger" icon="Delete" circle @click="showDbDel(scope.row)"></el-button>
@@ -109,7 +108,7 @@
 import dbConfDlg from "@/views/dbConfDlg";
 import dbConf from "@/api/dbConf";
 import dbManager from "@/api/dbManager";
-import dbConstTable from "@/api/dbConstTable";
+import * as arrays from "@/utils/arrays";
 
 export default {
   components:{
@@ -118,7 +117,10 @@ export default {
 
   data() {
     return {
+      roles: JSON.parse(localStorage.getItem("roles")),
+
       formLabelWidth : "140px",
+      tableHeight: '',
 
       tableData: [],
       tableTotal: 0,
@@ -256,10 +258,15 @@ export default {
         this.$message.warning("未配置连接数据库");
       }
     },
+
+    roleContains(roleId) {
+      return arrays.contains(this.roles, roleId);
+    },
   },
   
   created() {
     this.$store.state.menuActiveIndex = "/home";
+    this.tableHeight = this.roleContains('home_create') ? '75vh' : '79vh';
     this.getDb();
   }
 }

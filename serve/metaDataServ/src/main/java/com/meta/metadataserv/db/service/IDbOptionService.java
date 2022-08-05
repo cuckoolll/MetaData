@@ -17,8 +17,9 @@ public interface IDbOptionService {
     /**
      * 完成操作记录
      * @param optId
+     * @param stepId
      */
-    void finishOption(Integer optId);
+    void finishOption(Integer optId, Integer stepId, String userId);
 
     /**
      * 获取变更记录 .

@@ -176,6 +176,7 @@ export default {
 
     async closeApplicationDlg() {
       this.showApplicationDlg = false;
+      await this.getOption();
     },
 
     async getOptTypeSelect() {
@@ -196,7 +197,7 @@ export default {
         this.tableData = data.records;
         for (let i = 0; i < this.tableData.length; i++) {
           this.tableData[i].optTypeStr = this.optTypeIndex[this.tableData[i].optType];
-          this.tableData[i].status = this.tableData[i].step == 1 ? '已完成' : '待处理';
+          this.tableData[i].status = this.tableData[i].status == 1 ? '已完成' : '待处理';
         }
         this.tableTotal = data.total;
       }

@@ -10,6 +10,7 @@ import com.meta.metadataserv.domain.model.*;
 import com.meta.metadataserv.domain.query.OptionQueryCond;
 import com.meta.metadataserv.domain.query.TableQueryCond;
 import com.meta.metadataserv.enums.OptType;
+import com.meta.metadataserv.sys.service.IStepService;
 import com.meta.metadataserv.utils.SqlUtil;
 import com.meta.metadataserv.utils.UuidUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -31,6 +32,9 @@ public class DbOptionServiceImpl implements IDbOptionService {
 
     @Resource
     private IDbTableService dbTableService;
+
+    @Resource
+    private IStepService stepService;
 
     /**
      * 完成步骤数 .
@@ -67,10 +71,8 @@ public class DbOptionServiceImpl implements IDbOptionService {
         }
         optId++;
         option.setOptId(optId);
-        option.setStep(1);
-//        option.setTarget("sys");
-//        option.setUpdateBy("sys");
-//        option.setCreateBy("sys");
+        option.setStep(option.getStep());
+        option.setStepVersion(stepService.getCurStepVersion());
         if (StringUtils.isEmpty(option.getTableId())) {
             option.setTableId(UuidUtil.getUuid());
         }
@@ -238,11 +240,21 @@ public class DbOptionServiceImpl implements IDbOptionService {
      * 完成操作记录
      * @param optId .
      */
-    public void finishOption(Integer optId) {
-        //TODO 流程判断，当前步骤是否完成，需要新建步骤配置表
-        OptionVo option = dbOptionDao.getOptionById(optId);
+    public void finishOption(Integer optId, Integer stepId, String userId) {
+        //最后一步的步骤id
+        Integer finalStep = stepService.getFinalStep();
+
+        dbOptionDao.updateStep(optId, stepId, stepService.getCurStepVersion(), userId);
+        //操作未处理完成
+        if (stepId != finalStep) {
+            return;
+        }
+
+        //完成操作记录
+        dbOptionDao.finishStep(optId);
 
         //将opt表数据更新至db表
+        OptionVo option = dbOptionDao.getOptionById(optId);
         if (OptType.CREATE_TABLE.getType().equals(option.getOptType())) {
             //新建表
             dbOptionDao.insertOptIntoDbTable(optId, OptType.CREATE_TABLE.getType());
@@ -391,4 +403,6 @@ public class DbOptionServiceImpl implements IDbOptionService {
 
         return SqlUtil.buildSqlTemplate(sql.toString(), option);
     }
+
+
 }

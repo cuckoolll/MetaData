@@ -41,6 +41,13 @@ export default {
       this.$router.push({path: '/home'})
     },
 
+    async getRoleRelByUserId(userId) {
+      const {code, data, msg} = await commonApi.getRoleRelByUserId(userId);
+      if ('200' === code) {
+        localStorage.setItem("roles", JSON.stringify(data));
+      }
+    },
+
     async login(loginForm) {
       this.$refs[loginForm].validate(async (valid) => {
         if (valid) {
@@ -51,7 +58,7 @@ export default {
           formData.append("client_secret", "secret");
           formData.append("grant_type", "password");
           const {code, data, msg} = await commonApi.login(formData);
-          if ('200' == code) {
+          if ('200' === code) {
             // user.saveUserLoginData(resp.data)
             // this.$store.commit('userUpdate', {
             //   nickname: data.nickname,
@@ -67,6 +74,9 @@ export default {
             userInfo.nickName = data.nickName;
             userInfo.email = data.email;
             localStorage.setItem("userInfo", JSON.stringify(userInfo));
+
+            await this.getRoleRelByUserId(data.userId);
+
             this.toHome();
           } else {
             if ('400' === code) {

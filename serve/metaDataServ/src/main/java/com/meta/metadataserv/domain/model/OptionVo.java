@@ -53,8 +53,14 @@ public class OptionVo {
     @ApiModelProperty("索引信息")
     private List<IndexVo> indexList;
 
-    @ApiModelProperty("步骤数")
+    @ApiModelProperty("步骤id")
     private Integer step;
+
+    @ApiModelProperty("步骤id")
+    private Integer stepVersion;
+
+    @ApiModelProperty("状态")
+    private Integer status;
 
     @ApiModelProperty("最后操作人id")
     private String updateBy;

@@ -135,7 +135,7 @@
             :width="100">
         </el-table-column>
         <el-table-column
-            prop="createBy"
+            prop="createByName"
             label="变更人"
             align="center"
             :width="100">

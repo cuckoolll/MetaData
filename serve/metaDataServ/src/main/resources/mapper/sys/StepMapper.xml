@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.meta.metadataserv.sys.dao.StepDao">
+    <select id="getStepBySort" resultType="com.meta.metadataserv.domain.common.SelectVo">
+        select step_id id,
+               step_name text
+        from t_metadata_step_conf
+        where version = #{version}
+          and sort in (
+        <foreach collection="sortList" item="item" index="index" separator=",">
+            #{item}
+        </foreach>
+        ) order by sort;
+    </select>
+
+    <select id="getTargetSelect" resultType="com.meta.metadataserv.domain.common.SelectVo">
+        select a.user_id id,
+               a.nick_name text
+        from t_metadata_user a,
+             t_metadata_role_rel b
+        where a.role_id = b.role_id
+          and b.step_id = #{stepId}
+    </select>
+
+    <select id="getFinalStep" resultType="java.lang.Integer">
+        select max(step_id) step_id from t_metadata_step_conf where version = #{version}
+    </select>
+
+    <select id="getCurStepVersion" resultType="java.lang.Integer">
+        select max(version) version from t_metadata_step_conf
+    </select>
+
+    <select id="getNextStep" resultType="java.lang.Integer">
+        select
+            c.next_step_id
+        from
+            t_metadata_user a,
+            t_metadata_role_rel b,
+            t_metadata_step_next c
+        where
+            a.role_id = b.role_id
+          and b.step_id = c.step_id
+          and a.user_id = #{userId}
+    </select>
+</mapper>

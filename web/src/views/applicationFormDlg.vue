@@ -5,17 +5,53 @@
              top="6vh"
              :close-on-click-modal="false"
   >
+    <el-scrollbar height="63vh">
     <el-form
         :model="applicationForm"
         ref="applicationForm"
         :rules="rules">
       <el-row>
         <el-col :span="8">
-          <el-form-item label="数据库名称" :label-width="formLabelWidth" prop="schema">
+          <el-form-item label="当前流程" :label-width="formLabelWidth" prop="step">
+            <el-select v-model="applicationForm.step"
+                       style="width: 250px;"
+                       @change="stepChange"
+            >
+              <el-option
+                  v-for="item in stepList"
+                  :key="item.id"
+                  :label="item.text"
+                  :value="item.id"
+              >
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-form-item label="处理人" :label-width="formLabelWidth" prop="target">
+            <el-select v-model="applicationForm.target"
+                       style="width: 250px;"
+                       filterable="true"
+            >
+              <el-option
+                  v-for="item in targetList"
+                  :key="item.id"
+                  :label="item.text"
+                  :value="item.id"
+              >
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="8">
+          <el-form-item label="数据库名称" :label-width="formLabelWidth" prop="tableSchema">
             <el-select v-model="applicationForm.tableSchema"
                        clearable
                        style="width: 250px;"
-                       :disabled="optType !== 'create_table'">
+                       :disabled="optType !== 'create_table'"
+            >
               <el-option
                   v-for="item in schemaOption"
                   :key="item.id"
@@ -365,21 +401,22 @@
         </el-tab-pane>
       </el-tabs>
     </div>
+    </el-scrollbar>
 
     <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="closeDlg">取消</el-button>
-          <el-button
-              type="primary"
-              @click="save('applicationForm')"
-              v-if="optType !== 'show_table'"
-          >保存</el-button>
-          <el-button
-              type="primary"
-              @click="exportApplicationForm()"
-              v-if="optType === 'show_table'"
-          >导出</el-button>
-        </span>
+      <span class="dialog-footer">
+        <el-button
+            @click="exportApplicationForm()"
+            v-if="optType === 'show_table'"
+            style="float: left;"
+        >导出</el-button>
+        <el-button @click="closeDlg">取消</el-button>
+        <el-button
+            type="primary"
+            @click="save('applicationForm')"
+            v-if="optStatus !== 1"
+        >保存</el-button>
+      </span>
     </template>
   </el-dialog>
 </template>
@@ -388,6 +425,7 @@
 import dbManager from "@/api/dbManager";
 import dbConf from "@/api/dbConf";
 import dbOption from "@/api/dbOption";
+import common from "@/api/common";
 import {doExport} from "@/utils/export";
 
 export default {
@@ -400,11 +438,14 @@ export default {
       title : '',
       optType: '',
       optId: '',
+      optStatus: '',
 
       userInfo: JSON.parse(localStorage.getItem("userInfo")),
 
       applicationForm: {},
       rules: {
+        step: [{ required: true, message: '请选择流程', trigger: 'blur' }],
+        target: [{ required: true, message: '请选择处理人', trigger: 'blur' }],
         tableSchema: [{ required: true, message: '请选择数据库名称', trigger: 'blur' }],
         tableName: [{ required: true, message: '请输入表名', trigger: 'blur' }],
         // remark: [{ required: true, message: '请输入表备注', trigger: 'blur' }],
@@ -424,11 +465,14 @@ export default {
 
       columnOptTypeIndex: [],
       indexOptTypeIndex: [],
+
+      stepList: [],
+      targetList: [],
     }
   },
 
   methods: {
-    showApplicationForm(form) {
+    async showApplicationForm(form) {
       this.title = form.title;
       this.optType = form.optType;
       this.optId = form.optId;
@@ -437,11 +481,12 @@ export default {
       this.applicationForm = {};
       this.applicationForm = form;
       if (this.optId) {
-        this.getOptionById(form.optId);
+        await this.getOptionById(form.optId);
       } else if ('create_table' != this.optType) {
-        this.getDbColumn(form.tableName, form.tableSchema);
-        this.getDbIndex(form.tableName, form.tableSchema);
+        await this.getDbColumn(form.tableName, form.tableSchema);
+        await this.getDbIndex(form.tableName, form.tableSchema);
       }
+      await this.getStepBySort();
       this.showApplicationFormDlg = true;
     },
 
@@ -566,7 +611,7 @@ export default {
       let that = this;
       this.$refs[applicationForm].validate(async (valid) => {
         if (valid) {
-          if (that.optType !== 'del_table') {
+          if (that.optType !== 'del_table' && that.optType !== 'show_table') {
             let errCount = this.checkColumnAndIndexValid();
             if (errCount > 0) {
               return false;
@@ -578,19 +623,33 @@ export default {
           option.indexList = this.indexData;
           option.createBy = this.userInfo.userId;
           option.updateBy = this.userInfo.userId;
-          option.target = this.userInfo.userId;
-          const { code, data, msg } = await dbOption.createOption(option);
-          if ('200' == code) {
-            let optId = data;
-            let res = await dbOption.finishOption(optId);
-            if ('200' == res.code) {
+
+          // 当前流程的权限验证
+          const { code, data, msg } = await common.hasStepAble({'step': option.step, 'userId': this.userInfo.userId});
+          if ('200' !== code) {
+            this.$message.error(msg);
+            return false;
+          }
+
+          if ('show_table' !== that.optType) {
+            const { code, data, msg } = await dbOption.createOption(option);
+            if ('200' == code) {
+              let optId = data;
               this.$message.success("保存成功，单号：" + optId);
+              this.closeDlg();
+            } else {
+              this.$message.error(msg);
+            }
+          }
+
+          if (this.optId) {
+            let res = await dbOption.finishOption({'optId': this.optId, 'step' : option.step, 'userId': option.target});
+            if ('200' == res.code) {
+              this.$message.success("保存成功");
               this.closeDlg();
             } else {
               this.$message.error(res.msg);
             }
-          } else {
-            this.$message.error(msg);
           }
         } else {
           this.checkColumnAndIndexValid();
@@ -665,6 +724,7 @@ export default {
       const { code, data, msg } = await dbOption.getOptionById(optId);
       if ('200' == code) {
         if (data) {
+          this.optStatus = data.status;
           this.applicationForm = data;
           this.columnsData = data.columnList;
           this.indexData = data.indexList;
@@ -700,6 +760,29 @@ export default {
         }
       }
     },
+
+    async getStepBySort() {
+      let sortStr = this.applicationForm.step ? this.applicationForm.step : '';
+      let stepVersion = this.applicationForm.stepVersion ? this.applicationForm.stepVersion : '';
+      const { code, data, msg } = await common.getStepBySort({'sort': sortStr, 'stepVersion': stepVersion});
+      if ('200' === code) {
+        this.stepList = data;
+        this.applicationForm.step = (this.applicationForm.step ? this.applicationForm.step : this.stepList[0].id) + "";
+        await this.getTargetSelect(this.applicationForm.step);
+      }
+    },
+
+    async getTargetSelect(stepId) {
+      const { code, data, msg } = await common.getTargetSelect(stepId);
+      if ('200' === code) {
+        this.targetList = data;
+      }
+    },
+
+    async stepChange(val) {
+      await this.getTargetSelect(val);
+      this.applicationForm.target = '';
+    }
   },
 
   mounted() {
@@ -793,4 +876,5 @@ export default {
   border:1px solid red;
   border-radius: 4px;
 }
+
 </style>

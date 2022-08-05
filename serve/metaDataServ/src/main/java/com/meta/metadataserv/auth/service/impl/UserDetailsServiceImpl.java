@@ -1,11 +1,10 @@
 package com.meta.metadataserv.auth.service.impl;
 
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
-import com.meta.metadataserv.auth.domain.model.User;
-import com.meta.metadataserv.auth.domain.model.UserVo;
-import com.meta.metadataserv.auth.service.UserService;
+import com.meta.metadataserv.domain.sys.User;
+import com.meta.metadataserv.domain.sys.UserVo;
+import com.meta.metadataserv.sys.service.IUserService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.CredentialsExpiredException;
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 
 
 @Service
@@ -28,7 +26,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private HttpServletRequest request;
 
     @Resource
-    private UserService userService;
+    private IUserService userService;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

@@ -108,7 +108,9 @@ create table if not exists t_metadata_opt (
 	table_schema varchar(100) comment '所属库',
 	remark text comment '表备注',
 	target varchar(50) comment '处理人',
-	step tinyint comment '步骤数',
+	step_id bigint comment '步骤id',
+	step_version int comment '步骤版本',
+	status tinyint comment '状态（0：待处理，1：已完成）',
 	update_time timestamp NULL DEFAULT NULL COMMENT '最后变更时间',
 	update_by varchar(50) DEFAULT NULL COMMENT '最后操作员',
 	create_time timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -182,13 +184,13 @@ CREATE TABLE `oauth_client_details` (
 create table if not exists t_metadata_user (
 	user_id varchar(50) primary key comment '用户id，主键',
 	username varchar(50) comment '用户名',
-	nick_name varchar(50) comment '用户名',
+	nick_name varchar(50) comment '昵称',
  	password varchar(100) comment '密码',
  	expired_time timestamp comment '过期时间',
  	pwd_reset_time timestamp comment '密码重置时间',
  	phone varchar(50) comment '手机号',
  	email varchar(50) comment '邮箱',
- 	roles varchar(50) comment '角色',
+ 	role_id varchar(50) comment '角色id',
  	client_id varchar(50) comment 'client_id',
  	sort bigint DEFAULT NULL COMMENT '排序',
   	datastatusid int DEFAULT NULL COMMENT '数据状态(0:禁用、1:启用)',
@@ -197,3 +199,67 @@ create table if not exists t_metadata_user (
 	create_time timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
 	create_by varchar(50) DEFAULT NULL COMMENT '创建操作员'
 ) comment '用户表';
+
+create table if not exists t_metadata_role (
+    role_id varchar(50) primary key comment '角色id，主键',
+    role_name varchar(50) comment '角色名称',
+    description text comment '描述',
+    sort bigint DEFAULT NULL COMMENT '排序',
+    datastatusid int DEFAULT NULL COMMENT '数据状态(0:禁用、1:启用)',
+    update_time timestamp NULL DEFAULT NULL COMMENT '最后变更时间',
+    update_by varchar(50) DEFAULT NULL COMMENT '最后操作员',
+    create_time timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    create_by varchar(50) DEFAULT NULL COMMENT '创建操作员'
+) comment '角色表';
+
+create table if not exists t_metadata_menu_item (
+    item_id varchar(50) primary key comment '主键',
+    item_name varchar(100) comment '功能名称',
+    html_id varchar(100) comment '前端id',
+    menu_uri varchar(400) comment '菜单uri',
+    description text comment '描述',
+    sort bigint DEFAULT NULL COMMENT '排序',
+    datastatusid int DEFAULT NULL COMMENT '数据状态(0:禁用、1:启用)',
+    update_time timestamp NULL DEFAULT NULL COMMENT '最后变更时间',
+    update_by varchar(50) DEFAULT NULL COMMENT '最后操作员',
+    create_time timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    create_by varchar(50) DEFAULT NULL COMMENT '创建操作员'
+) comment '菜单功能表';
+
+create table if not exists t_metadata_role_rel (
+    rel_id varchar(50) primary key comment '主键',
+    role_id varchar(50) comment '角色id',
+    item_id varchar(50) comment '功能id',
+    step_id varchar(50) comment '流程id',
+    rel_type tinyint comment '关系类型（0：功能，1：流程）',
+    sort bigint DEFAULT NULL COMMENT '排序',
+    datastatusid int DEFAULT NULL COMMENT '数据状态(0:禁用、1:启用)',
+    update_time timestamp NULL DEFAULT NULL COMMENT '最后变更时间',
+    update_by varchar(50) DEFAULT NULL COMMENT '最后操作员',
+    create_time timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    create_by varchar(50) DEFAULT NULL COMMENT '创建操作员'
+) comment '角色关系表';
+
+create table if not exists t_metadata_step_conf (
+    step_id bigint primary key auto_increment comment '主键',
+    step_name varchar(50) comment '流程名称',
+    version int comment '版本',
+    sort bigint DEFAULT NULL COMMENT '排序',
+    datastatusid int DEFAULT NULL COMMENT '数据状态(0:禁用、1:启用)',
+    update_time timestamp NULL DEFAULT NULL COMMENT '最后变更时间',
+    update_by varchar(50) DEFAULT NULL COMMENT '最后操作员',
+    create_time timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    create_by varchar(50) DEFAULT NULL COMMENT '创建操作员'
+) comment '审核流程配置表';
+
+create table if not exists t_metadata_step_next (
+    next_id bigint primary key auto_increment comment '主键',
+    step_id bigint comment '流程id',
+    next_step_id bigint comment '下一步流程id',
+    sort bigint DEFAULT NULL COMMENT '排序',
+    datastatusid int DEFAULT NULL COMMENT '数据状态(0:禁用、1:启用)',
+    update_time timestamp NULL DEFAULT NULL COMMENT '最后变更时间',
+    update_by varchar(50) DEFAULT NULL COMMENT '最后操作员',
+    create_time timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    create_by varchar(50) DEFAULT NULL COMMENT '创建操作员'
+) comment '审核流程传递配置表';

@@ -1,4 +1,4 @@
-package com.meta.metadataserv.auth.domain.model;
+package com.meta.metadataserv.domain.sys;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -42,9 +42,9 @@ public class UserVo implements UserDetails {
         this.setEmail(user.getEmail());
         this.setEnabled(Integer.valueOf(1).equals(user.getDatastatusid()));
         this.setClientId(user.getClientId());
-        if (user.getRoles() != null) {
+        if (user.getRoleId() != null) {
             authorities = new ArrayList<>();
-            authorities.add(new SimpleGrantedAuthority(String.valueOf(user.getRoles())));
+            authorities.add(new SimpleGrantedAuthority(String.valueOf(user.getRoleId())));
         }
     }
 
