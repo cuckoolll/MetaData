@@ -61,7 +61,7 @@ const routes = [
     {
         path: '/constTable',
         name: 'constTable',
-        icon: 'List',
+        icon: 'Tickets',
         meta: {
             nav: '常量表',
         },
@@ -72,6 +72,56 @@ const routes = [
                 hidden: true,
                 component: () => import('@/views/constTable.vue'),
             }
+        ]
+    },
+    {
+        path: '/setting',
+        icon: 'Setting',
+        meta: {
+            nav: '设置',
+        },
+        component: home,
+        children: [
+            {
+                path: 'userManage',
+                icon: 'User',
+                meta: {
+                    nav: '用户管理',
+                },
+                component: () => import('@/views/userManage'),
+            },
+            {
+                path: 'role',
+                icon: 'Avatar',
+                meta: {
+                    nav: '角色管理',
+                },
+                component: () => import('@/views/constTable.vue'),
+            },
+            {
+                path: 'function',
+                icon: 'Operation',
+                meta: {
+                    nav: '功能管理',
+                },
+                component: () => import('@/views/constTable.vue'),
+            },
+            {
+                path: 'power',
+                icon: 'Open',
+                meta: {
+                    nav: '权限管理',
+                },
+                component: () => import('@/views/constTable.vue'),
+            },
+            {
+                path: 'flow',
+                icon: 'Finished',
+                meta: {
+                    nav: '设置审批流程',
+                },
+                component: () => import('@/views/constTable.vue'),
+            },
         ]
     },
 ]

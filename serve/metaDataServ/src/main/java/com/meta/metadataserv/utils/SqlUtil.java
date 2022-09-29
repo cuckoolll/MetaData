@@ -38,7 +38,7 @@ public class SqlUtil {
         StringBuilder sqlBuilder = new StringBuilder("\t" + sql);
         sqlBuilder.deleteCharAt(sqlBuilder.length() - 1);
         SimpleDateFormat yyyyMMddHHmmss = new SimpleDateFormat("yyyy-MM-dd HH:mm:dd");
-        return MessageFormat.format(TEMPLATE, option.getOptId(), option.getDescription(), option.getCreateBy(),
+        return MessageFormat.format(TEMPLATE, option.getOptId(), option.getDescription(), option.getCreateByName(),
                 yyyyMMddHHmmss.format(option.getCreateTime()), sqlBuilder.toString().replaceAll("\n", "\n\t"));
     }
 

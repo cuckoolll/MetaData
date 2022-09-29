@@ -6,6 +6,7 @@ import com.meta.metadataserv.domain.sys.User;
 import com.meta.metadataserv.domain.sys.UserVo;
 import com.meta.metadataserv.sys.service.IUserService;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.authentication.DisabledException;
@@ -21,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     private HttpServletRequest request;
@@ -35,7 +37,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException("用户不存在");
         }
 
-        UserVo userVo = new UserVo(user);
+        UserVo userVo = null;
+        try {
+            userVo = new UserVo(user);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException("该账号异常，请联系管理员!");
+        }
 
         if (!userVo.isEnabled()) {
             throw new DisabledException("该账户已被禁用，请联系管理员!");

@@ -117,7 +117,7 @@ export default {
 
   data() {
     return {
-      roles: JSON.parse(localStorage.getItem("roles")),
+      roles: JSON.parse(localStorage.getItem("userRoles")),
 
       formLabelWidth : "140px",
       tableHeight: '',
@@ -153,11 +153,13 @@ export default {
     handleSizeChange: function (size) {
       //一页显示多少条
       this.pageSize = size;
+      this.getDb();
     },
 
     handleCurrentChange: function (currentPage) {
       //页码更改方法
       this.currentPage = currentPage;
+      this.getDb();
     },
 
     showDbCreate() {

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.meta.metadataserv.sys.dao.UserDao">
+
+    <select id="getUsers" resultType="com.meta.metadataserv.domain.sys.UserVo">
+        select *, b.role_name roleName
+        from t_metadata_user a left join t_metadata_role b on a.role_id = b.role_id
+        order by user_id
+    </select>
+
+    <update id="updateUserStatus">
+        update t_metadata_user set datastatusid = #{status} where user_id = #{userId}
+    </update>
+
+    <update id="updateUser">
+        update t_metadata_user
+        set nick_name = #{user.nickName},
+            phone = #{user.phone},
+            email = #{user.email},
+            role_id = #{user.roleId},
+            update_time = now()
+        where user_id = #{user.userId}
+    </update>
+
+    <insert id="insertUser">
+        insert into t_metadata_user
+            (user_id,
+             username,
+             nick_name,
+             password,
+             phone,
+             email,
+             role_id,
+             client_id,
+             datastatusid,
+             create_time)
+        values
+            (#{user.userId},
+             #{user.username},
+             #{user.nickName},
+             #{user.password},
+             #{user.phone},
+             #{user.email},
+             #{user.roleId},
+             'client',
+             0,
+             now())
+    </insert>
+
+    <update id="resetPassword">
+        update t_metadata_user set password = #{password} where user_id = #{userId}
+    </update>
+</mapper>

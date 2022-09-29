@@ -1,17 +1,18 @@
 package com.meta.metadataserv.sys.ctrl;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.meta.metadataserv.domain.common.SelectVo;
+import com.meta.metadataserv.domain.query.CommonQueryCond;
 import com.meta.metadataserv.domain.result.RespResult;
+import com.meta.metadataserv.domain.sys.UserVo;
 import com.meta.metadataserv.sys.service.IRoleService;
 import com.meta.metadataserv.sys.service.IStepService;
+import com.meta.metadataserv.sys.service.IUserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -27,6 +28,9 @@ public class SysController {
 
     @Resource
     private IStepService stepService;
+
+    @Resource
+    private IUserService userService;
 
     @ApiOperation("通过用户获取角色权限")
     @PostMapping("/getRoleRelByUserId")
@@ -56,6 +60,68 @@ public class SysController {
             boolean result = stepService.hasStepAble(stepId, userId);
             return RespResult.ok(result);
         }  catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return RespResult.error(e.getMessage(), e.getMessage());
+        }
+    }
+
+    @ApiOperation("查询角色下拉")
+    @PostMapping("/getRoleSelect")
+    public RespResult getRoleSelect() {
+        List<SelectVo> result = roleService.getRoleSelect();
+        return RespResult.ok(result);
+    }
+
+    @ApiOperation("查询所有用户信息")
+    @PostMapping("/getUsers")
+    public RespResult getUsers(@RequestBody CommonQueryCond cond) {
+        Page<UserVo> result = userService.getUsers(cond);
+        return RespResult.ok(result);
+    }
+
+    @ApiOperation("更新用户启用停用状态")
+    @PostMapping("/updateUserStatus")
+    public RespResult updateUserStatus(@RequestParam String userId, @RequestParam Integer status) {
+        try {
+            userService.updateUserStatus(userId, status);
+            return RespResult.ok();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return RespResult.error(e.getMessage(), e.getMessage());
+        }
+    }
+
+    @ApiOperation("删除用户")
+    @PostMapping("/delUser")
+    public RespResult delUser(@RequestParam String userId) {
+        try {
+            userService.delUser(userId);
+            return RespResult.ok();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return RespResult.error(e.getMessage(), e.getMessage());
+        }
+    }
+
+    @ApiOperation("创建/更新用户")
+    @PostMapping("/saveUser")
+    public RespResult saveUser(@RequestBody UserVo user) {
+        try {
+            userService.saveUser(user);
+            return RespResult.ok();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return RespResult.error(e.getMessage(), e.getMessage());
+        }
+    }
+
+    @ApiOperation("重置密码")
+    @PostMapping("/resetPassword")
+    public RespResult resetPassword(String userId) {
+        try {
+            userService.resetPassword(userId);
+            return RespResult.ok();
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
             return RespResult.error(e.getMessage(), e.getMessage());
         }

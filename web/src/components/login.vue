@@ -44,7 +44,7 @@ export default {
     async getRoleRelByUserId(userId) {
       const {code, data, msg} = await commonApi.getRoleRelByUserId(userId);
       if ('200' === code) {
-        localStorage.setItem("roles", JSON.stringify(data));
+        localStorage.setItem("userRoles", JSON.stringify(data));
       }
     },
 

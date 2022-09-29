@@ -35,12 +35,6 @@
         </template>
       </el-menu-item>
     </template>
-	
-<!--	<el-tooltip class="item" effect="dark" content="数据库设置" placement="right">-->
-<!--		<el-menu-item index="" @click="showdbConfDlg()">-->
-<!--			<el-button type="text" icon="Setting" style="color: #303133;"></el-button>-->
-<!--		</el-menu-item>-->
-<!--	</el-tooltip>-->
   </el-menu>
 </template>
 

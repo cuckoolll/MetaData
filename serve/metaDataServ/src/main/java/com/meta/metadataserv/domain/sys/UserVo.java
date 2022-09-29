@@ -1,5 +1,6 @@
 package com.meta.metadataserv.domain.sys;
 
+import com.meta.metadataserv.security.SM2Utils;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -7,6 +8,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -16,6 +18,8 @@ public class UserVo implements UserDetails {
 
     private String id;
 
+    private String userId;
+
     private String username;
 
     private String password;
@@ -23,6 +27,14 @@ public class UserVo implements UserDetails {
     private String nickName;
 
     private String email;
+
+    private String phone;
+
+    private String datastatusid;
+
+    private String roleId;
+
+    private String roleName;
 
     private Boolean enabled;
 
@@ -34,10 +46,10 @@ public class UserVo implements UserDetails {
 
     private Collection<SimpleGrantedAuthority> authorities;
 
-    public UserVo(User user) {
+    public UserVo(User user) throws IOException {
         this.setId(user.getUserId());
         this.setUsername(user.getUsername());
-        this.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
+        this.setPassword(new BCryptPasswordEncoder().encode(SM2Utils.decrypt(user.getPassword())));
         this.setNickName(user.getNickName());
         this.setEmail(user.getEmail());
         this.setEnabled(Integer.valueOf(1).equals(user.getDatastatusid()));

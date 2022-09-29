@@ -185,7 +185,7 @@ create table if not exists t_metadata_user (
 	user_id varchar(50) primary key comment '用户id，主键',
 	username varchar(50) comment '用户名',
 	nick_name varchar(50) comment '昵称',
- 	password varchar(100) comment '密码',
+ 	password text comment '密码',
  	expired_time timestamp comment '过期时间',
  	pwd_reset_time timestamp comment '密码重置时间',
  	phone varchar(50) comment '手机号',

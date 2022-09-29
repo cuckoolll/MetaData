@@ -36,4 +36,28 @@ export default {
     hasStepAble(param)  {
         return post(this.data().sys + "/hasStepAble?stepId=" + param.step + "&userId=" + param.userId);
     },
+
+    getUsers(param)  {
+        return post(this.data().sys + "/getUsers", param);
+    },
+
+    updateUserStatus(param)  {
+        return post(this.data().sys + "/updateUserStatus?userId=" + param.userId + "&status=" + param.status);
+    },
+
+    getRoleSelect(param)  {
+        return post(this.data().sys + "/getRoleSelect", param);
+    },
+
+    delUser(param)  {
+        return post(this.data().sys + "/delUser?userId=" + param.userId);
+    },
+
+    saveUser(param)  {
+        return post(this.data().sys + "/saveUser", param);
+    },
+
+    resetPassword(param)  {
+        return post(this.data().sys + "/resetPassword?userId=" + param.userId);
+    },
 }

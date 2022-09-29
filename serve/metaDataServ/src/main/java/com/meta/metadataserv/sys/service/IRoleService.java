@@ -1,5 +1,7 @@
 package com.meta.metadataserv.sys.service;
 
+import com.meta.metadataserv.domain.common.SelectVo;
+
 import java.util.List;
 
 public interface IRoleService {
@@ -9,4 +11,10 @@ public interface IRoleService {
      * @return
      */
     List<String> getRoleRelByUserId(String userId);
+
+    /**
+     * 查询角色下拉 .
+     * @return .
+     */
+    List<SelectVo> getRoleSelect();
 }

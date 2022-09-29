@@ -13,4 +13,14 @@
           and b.item_id = c.item_id
           and a.user_id = #{userId}
     </select>
+
+    <select id="getRoleSelect" resultType="com.meta.metadataserv.domain.common.SelectVo">
+        select
+            role_id id,
+            role_name text
+        from
+            t_metadata_role
+        where
+            datastatusid = 1
+    </select>
 </mapper>
