@@ -60,4 +60,32 @@ export default {
     resetPassword(param)  {
         return post(this.data().sys + "/resetPassword?userId=" + param.userId);
     },
+
+    getRoles(param)  {
+        return post(this.data().sys + "/getRoles", param);
+    },
+
+    updateRoleStatus(param)  {
+        return post(this.data().sys + "/updateRoleStatus?roleId=" + param.roleId + "&status=" + param.status);
+    },
+
+    delRole(param)  {
+        return post(this.data().sys + "/delRole?roleId=" + param.roleId);
+    },
+
+    saveRole(param)  {
+        return post(this.data().sys + "/saveRole", param);
+    },
+
+    getFuncs(param)  {
+        return post(this.data().sys + "/getFuncs", param);
+    },
+
+    delFunc(param)  {
+        return post(this.data().sys + "/delFunc?itemId=" + param.itemId);
+    },
+
+    saveFunc(param)  {
+        return post(this.data().sys + "/saveFunc", param);
+    },
 }

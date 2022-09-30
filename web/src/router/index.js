@@ -96,7 +96,7 @@ const routes = [
                 meta: {
                     nav: '角色管理',
                 },
-                component: () => import('@/views/constTable.vue'),
+                component: () => import('@/views/roleManage'),
             },
             {
                 path: 'function',
@@ -104,7 +104,7 @@ const routes = [
                 meta: {
                     nav: '功能管理',
                 },
-                component: () => import('@/views/constTable.vue'),
+                component: () => import('@/views/funcManage'),
             },
             {
                 path: 'power',

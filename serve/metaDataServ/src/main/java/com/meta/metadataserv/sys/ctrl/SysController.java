@@ -4,7 +4,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.meta.metadataserv.domain.common.SelectVo;
 import com.meta.metadataserv.domain.query.CommonQueryCond;
 import com.meta.metadataserv.domain.result.RespResult;
+import com.meta.metadataserv.domain.sys.FuncVo;
+import com.meta.metadataserv.domain.sys.RoleVo;
 import com.meta.metadataserv.domain.sys.UserVo;
+import com.meta.metadataserv.sys.service.IFuncService;
 import com.meta.metadataserv.sys.service.IRoleService;
 import com.meta.metadataserv.sys.service.IStepService;
 import com.meta.metadataserv.sys.service.IUserService;
@@ -31,6 +34,9 @@ public class SysController {
 
     @Resource
     private IUserService userService;
+
+    @Resource
+    private IFuncService funcService;
 
     @ApiOperation("通过用户获取角色权限")
     @PostMapping("/getRoleRelByUserId")
@@ -120,6 +126,80 @@ public class SysController {
     public RespResult resetPassword(String userId) {
         try {
             userService.resetPassword(userId);
+            return RespResult.ok();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return RespResult.error(e.getMessage(), e.getMessage());
+        }
+    }
+
+    @ApiOperation("查询所有角色信息")
+    @PostMapping("/getRoles")
+    public RespResult getRoles(@RequestBody CommonQueryCond cond) {
+        Page<RoleVo> result = roleService.getRoles(cond);
+        return RespResult.ok(result);
+    }
+
+    @ApiOperation("更新角色启用停用状态")
+    @PostMapping("/updateRoleStatus")
+    public RespResult updateRoleStatus(@RequestParam String roleId, @RequestParam Integer status) {
+        try {
+            roleService.updateRoleStatus(roleId, status);
+            return RespResult.ok();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return RespResult.error(e.getMessage(), e.getMessage());
+        }
+    }
+
+    @ApiOperation("删除角色")
+    @PostMapping("/delRole")
+    public RespResult delRole(@RequestParam String roleId) {
+        try {
+            roleService.delRole(roleId);
+            return RespResult.ok();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return RespResult.error(e.getMessage(), e.getMessage());
+        }
+    }
+
+    @ApiOperation("创建/更新角色")
+    @PostMapping("/saveRole")
+    public RespResult saveRole(@RequestBody RoleVo role) {
+        try {
+            roleService.saveRole(role);
+            return RespResult.ok();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return RespResult.error(e.getMessage(), e.getMessage());
+        }
+    }
+
+    @ApiOperation("查询所有功能")
+    @PostMapping("/getFuncs")
+    public RespResult getFuncs(@RequestBody CommonQueryCond cond) {
+        Page<FuncVo> result = funcService.getFuncs(cond);
+        return RespResult.ok(result);
+    }
+
+    @ApiOperation("删除功能")
+    @PostMapping("/delFunc")
+    public RespResult delFunc(@RequestParam String itemId) {
+        try {
+            funcService.delFunc(itemId);
+            return RespResult.ok();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return RespResult.error(e.getMessage(), e.getMessage());
+        }
+    }
+
+    @ApiOperation("创建/更新功能")
+    @PostMapping("/saveFunc")
+    public RespResult saveFunc(@RequestBody FuncVo func) {
+        try {
+            funcService.saveFunc(func);
             return RespResult.ok();
         } catch (Exception e) {
             log.error(e.getMessage(), e);

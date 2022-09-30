@@ -83,6 +83,7 @@ public class UserServiceImpl implements IUserService {
                 user.setUserId(UuidUtil.getUuid());
                 user.setPassword(SM2Utils.encrypt(DEFAULT_PASSWORD));
                 userDao.insertUser(user);
+                return;
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
                 throw new RuntimeException("创建用户异常");

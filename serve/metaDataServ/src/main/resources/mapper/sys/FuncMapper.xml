@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.meta.metadataserv.sys.dao.FuncDao">
+
+    <select id="getFuncs" resultType="com.meta.metadataserv.domain.sys.FuncVo">
+        select * from t_metadata_menu_item
+    </select>
+
+    <delete id="delFunc">
+        delete from t_metadata_menu_item where item_id = #{itemId}
+    </delete>
+
+    <insert id="insertFunc">
+        insert into t_metadata_menu_item
+            (item_id,
+             item_name,
+             menu_uri,
+             description,
+             update_time
+            )
+        values
+            (#{func.itemId},
+             #{func.itemName},
+             #{func.menuUri},
+             #{func.description},
+            now());
+    </insert>
+
+    <update id="updateFunc">
+        update t_metadata_menu_item
+        set
+            item_name = #{func.itemName},
+            menu_uri = #{func.menuUri},
+            description = #{func.description},
+            update_time = now()
+        where
+            item_id = #{func.itemId}
+    </update>
+</mapper>
